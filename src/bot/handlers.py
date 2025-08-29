@@ -2,6 +2,8 @@
 
 import logging
 from typing import Optional
+import httpx
+import os
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
@@ -345,6 +347,9 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             sub_id = int(data.split(":", 1)[1])
             await handle_unsubscribe(query, context, sub_id)
         elif data == "start_search":
+            keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
+            ])
             await query.edit_message_text(
                 "🔍 **Búsqueda de Datasets**\n\n"
                 "Para buscar, usa el comando:\n"
@@ -353,7 +358,8 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 "• `/buscar covid`\n"
                 "• `/buscar población`\n"
                 "• `/buscar salud castilla`",
-                parse_mode="HTML"
+                parse_mode="HTML",
+                reply_markup=keyboard
             )
         elif data == "recent_datasets":
             await handle_recent_datasets_callback(query, context)
@@ -385,11 +391,23 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             dataset_id = data.split(":", 1)[1]
             await show_export_menu(query, context, dataset_id)
         else:
-            await query.edit_message_text("❌ Opción no reconocida.")
+            keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
+            ])
+            await query.edit_message_text(
+                "❌ Opción no reconocida.",
+                reply_markup=keyboard
+            )
             
     except Exception as e:
         logger.error(f"Error in handle_callback: {e}")
-        await query.edit_message_text("❌ Error procesando la solicitud.")
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
+        ])
+        await query.edit_message_text(
+            "❌ Error procesando la solicitud.",
+            reply_markup=keyboard
+        )
 
 
 async def show_themes(query, context, page: int = 0) -> None:
@@ -398,7 +416,13 @@ async def show_themes(query, context, page: int = 0) -> None:
         # Using global API client instance to maintain cache consistency
         themes = await api_client.get_themes_with_real_counts()
         if not themes:
-            await query.edit_message_text("❌ No se encontraron categorías.")
+            keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔄 Reintentar", callback_data="start")]
+            ])
+            await query.edit_message_text(
+                "❌ No se encontraron categorías.",
+                reply_markup=keyboard
+            )
             return
         
         keyboard = create_themes_keyboard(themes, page, settings.themes_per_page)
@@ -419,7 +443,13 @@ async def show_themes(query, context, page: int = 0) -> None:
         
     except Exception as e:
         logger.error(f"Error in show_themes: {e}")
-        await query.edit_message_text("❌ Error al cargar las categorías.")
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔄 Reintentar", callback_data="start")]
+        ])
+        await query.edit_message_text(
+            "❌ Error al cargar las categorías.",
+            reply_markup=keyboard
+        )
 
 
 async def show_theme_options(query, context, theme_name: str) -> None:
@@ -451,8 +481,14 @@ async def show_datasets(query, context, theme_name: str, page: int = 0) -> None:
         logger.info(f"Received {len(datasets)} datasets out of {total_count} total")
         
         if not datasets:
+            keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton("⬅️ Volver a categorías", callback_data="start")]
+            ])
             message = f"❌ No se encontraron datasets en la categoría '{theme_name}'"
-            await query.edit_message_text(message + ".")
+            await query.edit_message_text(
+                message + ".",
+                reply_markup=keyboard
+            )
             return
         
         keyboard = create_datasets_keyboard(datasets, theme_name, page, settings.datasets_per_page)
@@ -485,7 +521,13 @@ async def show_datasets(query, context, theme_name: str, page: int = 0) -> None:
         logger.error(f"Error in show_datasets: {e}")
         import traceback
         traceback.print_exc()
-        await query.edit_message_text(f"❌ Error al cargar los datasets: {str(e)}")
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("⬅️ Volver a categorías", callback_data="start")]
+        ])
+        await query.edit_message_text(
+            f"❌ Error al cargar los datasets: {str(e)}",
+            reply_markup=keyboard
+        )
 
 
 async def show_dataset_info(query, context, dataset_id: str) -> None:
@@ -775,16 +817,35 @@ async def handle_unsubscribe(query, context, sub_id: int) -> None:
         success = db_manager.remove_subscription(user_db_id, sub_id)
         
         if success:
+            keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔔 Mis alertas", callback_data="mis_alertas")],
+                [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
+            ])
             await query.edit_message_text(
                 "✅ Suscripción cancelada correctamente.\n\n"
-                "Usa /mis_alertas para ver tus suscripciones restantes."
+                "Puedes gestionar tus otras suscripciones desde 'Mis alertas'.",
+                reply_markup=keyboard
             )
         else:
-            await query.edit_message_text("❌ Error al cancelar la suscripción.")
+            keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🔔 Mis alertas", callback_data="mis_alertas")],
+                [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
+            ])
+            await query.edit_message_text(
+                "❌ Error al cancelar la suscripción.",
+                reply_markup=keyboard
+            )
         
     except Exception as e:
         logger.error(f"Error in handle_unsubscribe: {e}")
-        await query.edit_message_text("❌ Error al procesar la cancelación.")
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔔 Mis alertas", callback_data="mis_alertas")],
+            [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
+        ])
+        await query.edit_message_text(
+            "❌ Error al procesar la cancelación.",
+            reply_markup=keyboard
+        )
 
 
 async def search_datasets(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -1409,7 +1470,10 @@ async def show_export_menu(query, context, dataset_id: str) -> None:
         
         message = (
             f"💾 <b>Exportar: {title}</b>\n\n"
-            f"📊 <b>Registros disponibles:</b> {dataset.records_count:,}\n\n"
+            f"📊 <b>Registros:</b> {dataset.records_count:,}\n\n"
+            f"<b>📱 Envío directo:</b> El archivo se envía a tu chat (máx. 5 MB)\n"
+            f"<b>🌐 Descarga web:</b> Enlace directo para descargar\n\n"
+            f"💡 <i>Los archivos pequeños se procesan automáticamente</i>"
         )
         
         if exports:
@@ -1436,6 +1500,7 @@ async def show_export_menu(query, context, dataset_id: str) -> None:
     except Exception as e:
         logger.error(f"Error in show_export_menu: {e}")
         await query.answer("❌ Error al cargar menú de exportación", show_alert=True)
+
 
 
 async def handle_dataset_share(query, context, dataset_id: str) -> None:

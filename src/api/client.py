@@ -446,34 +446,25 @@ class JCYLAPIClient:
 
     async def get_dataset_exports(self, dataset_id: str) -> List[ExportFormat]:
         url = self._build_url(f"/api/explore/v2.1/catalog/datasets/{dataset_id}/exports")
-        logger.info(f"EXPORTS DEBUG: Starting get_dataset_exports for {dataset_id}")
-        
         try:
             data = await self._get(url)
-            logger.info(f"EXPORTS DEBUG: API response keys: {list(data.keys())}")
             exports = []
             
             # The API returns links with rel attributes, not exports array
             links_data = data.get("links", [])
-            logger.info(f"EXPORTS DEBUG: Found {len(links_data)} links in response")
             
             for link in links_data:
                 rel = link.get("rel", "")
                 href = link.get("href", "")
-                logger.info(f"EXPORTS DEBUG: Processing link rel={rel}, href={href[:50]}...")
                 
                 # Skip the 'self' link, process format links
                 if rel and rel != "self" and href:
                     # rel contains the format name (csv, json, xlsx, etc.)
                     exports.append(ExportFormat(format=rel, url=href))
-                    logger.info(f"EXPORTS DEBUG: Added export format: {rel}")
             
-            logger.info(f"EXPORTS DEBUG: Found {len(exports)} export formats for dataset {dataset_id}: {[e.format for e in exports]}")
             return exports
         except Exception as e:
-            logger.error(f"EXPORTS DEBUG ERROR: Error getting exports for dataset {dataset_id}: {e}")
-            import traceback
-            logger.error(f"EXPORTS DEBUG ERROR: Traceback: {traceback.format_exc()}")
+            logger.error(f"Error getting exports for dataset {dataset_id}: {e}")
             return []
 
     async def get_dataset_attachments(self, dataset_id: str) -> List[Attachment]:

@@ -2,7 +2,7 @@
 
 **Bot oficial para explorar los datos abiertos de Castilla y León de forma fácil e intuitiva**
 
-[![Telegram](https://img.shields.io/badge/Telegram-Bot-blue)](https://t.me/tu_bot)
+[![Telegram](https://img.shields.io/badge/Telegram-Bot-blue)](https://t.me/cyl_asistente_bot)
 [![Python](https://img.shields.io/badge/Python-3.11+-green)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
@@ -23,8 +23,8 @@ Un bot de Telegram que te permite acceder a **más de 400 datasets** oficiales d
 ## 🚀 ¿Cómo empezar?
 
 ### 1. Busca el bot en Telegram
-- Busca `@tu_bot_name` en Telegram
-- O haz clic [aquí](https://t.me/tu_bot) para acceder directamente
+- Busca `@cyl_asistente_bot` en Telegram
+- O haz clic [aquí](https://t.me/cyl_asistente_bot) para acceder directamente
 
 ### 2. Explora las categorías
 - Usa `/start` para ver todas las categorías disponibles

@@ -186,18 +186,7 @@ def create_datasets_keyboard(
 
 def create_dataset_info_keyboard(dataset_id: str, exports: List[ExportFormat], has_attachments: bool = False, is_bookmarked: bool = False, dataset_title: str = "") -> InlineKeyboardMarkup:
     """Create keyboard for dataset information page."""
-    import logging
-    logger = logging.getLogger(__name__)
-    
     keyboard = []
-    
-    # Debug logging - very explicit
-    logger.error(f"KEYBOARD DEBUG: Creating keyboard for dataset {dataset_id}")
-    logger.error(f"KEYBOARD DEBUG: Exports list: {exports}")
-    logger.error(f"KEYBOARD DEBUG: Exports count: {len(exports)}")
-    logger.error(f"KEYBOARD DEBUG: Exports types: {[type(e) for e in exports]}")
-    if exports:
-        logger.error(f"KEYBOARD DEBUG: Available export formats: {[e.format for e in exports]}")
     
     # Single export button that opens format selection menu
     if exports:
@@ -206,14 +195,9 @@ def create_dataset_info_keyboard(dataset_id: str, exports: List[ExportFormat], h
             short_id = callback_mapper.get_short_id(export_callback)
             export_callback = f"s:{short_id}"
         
-        logger.error(f"KEYBOARD DEBUG: Adding export button with callback: {export_callback}")
         keyboard.append([
             InlineKeyboardButton("💾 Exportar datos", callback_data=export_callback)
         ])
-        logger.error(f"KEYBOARD DEBUG: Export button added successfully")
-    else:
-        logger.error(f"KEYBOARD DEBUG: No exports available for dataset {dataset_id}")
-        logger.error(f"KEYBOARD DEBUG: Exports is empty or None")
     
     # Web link only
     keyboard.append([
@@ -260,7 +244,7 @@ def create_dataset_info_keyboard(dataset_id: str, exports: List[ExportFormat], h
 
 
 def create_export_menu_keyboard(dataset_id: str, exports: List[ExportFormat]) -> InlineKeyboardMarkup:
-    """Create keyboard for export format selection."""
+    """Create keyboard for export format selection with direct download and web options."""
     keyboard = []
     
     if not exports:
@@ -268,41 +252,21 @@ def create_export_menu_keyboard(dataset_id: str, exports: List[ExportFormat]) ->
             InlineKeyboardButton("❌ No hay formatos disponibles", callback_data="dummy")
         ])
     else:
-        # Group similar formats and prioritize common ones
-        priority_formats = ["xlsx", "csv", "json", "parquet"]
-        other_formats = []
+        # Export formats as direct links to the JCYL website
+        format_icons = {
+            "xlsx": "📊", "csv": "📈", "json": "💾", "parquet": "🗃️",
+            "geojson": "🗺️", "shapefile": "🏗️", "kml": "🌍", 
+            "xml": "📄", "rdf": "🔗", "pdf": "📋"
+        }
         
-        # First show priority formats
-        for priority in priority_formats:
-            for export in exports:
-                if export.format.lower() == priority:
-                    format_icons = {
-                        "xlsx": "📈", "csv": "📊", "json": "💾", "parquet": "🗃️"
-                    }
-                    icon = format_icons.get(priority, "💾")
-                    keyboard.append([
-                        InlineKeyboardButton(f"{icon} {export.format.upper()}", url=export.url)
-                    ])
-                    break
-        
-        # Then show other formats
-        for export in exports:
-            if export.format.lower() not in priority_formats:
-                other_formats.append(export)
-        
-        if other_formats:
-            # Group other formats in rows of 2
-            for i in range(0, len(other_formats), 2):
-                row = []
-                for j in range(i, min(i + 2, len(other_formats))):
-                    export = other_formats[j]
-                    format_icons = {
-                        "geojson": "🗺️", "shapefile": "🏗️", "kml": "🌍", 
-                        "xml": "📄", "rdf": "🔗", "pdf": "📋"
-                    }
-                    icon = format_icons.get(export.format.lower(), "💾")
-                    row.append(InlineKeyboardButton(f"{icon} {export.format.upper()}", url=export.url))
-                keyboard.append(row)
+        # Group exports in rows of 2
+        for i in range(0, len(exports), 2):
+            row = []
+            for j in range(i, min(i + 2, len(exports))):
+                export = exports[j]
+                icon = format_icons.get(export.format.lower(), "💾")
+                row.append(InlineKeyboardButton(f"{icon} {export.format.upper()}", url=export.url))
+            keyboard.append(row)
     
     # Back button
     back_callback = f"dataset:{dataset_id}"
@@ -353,6 +317,11 @@ def create_subscriptions_keyboard(subscriptions: List[Tuple[int, str, str, str]]
     if not keyboard:
         keyboard.append([
             InlineKeyboardButton("➕ Explorar para suscribirte", callback_data="start")
+        ])
+    else:
+        # Add home button when there are subscriptions
+        keyboard.append([
+            InlineKeyboardButton("🏠 Inicio", callback_data="start")
         ])
     
     return InlineKeyboardMarkup(keyboard)
