@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     
     # Alerts
     alerts_enabled: bool = Field(True, env="ALERTS_ENABLED")
-    alerts_check_interval_hours: int = Field(6, env="ALERTS_CHECK_INTERVAL_HOURS")
+    alerts_check_interval_hours: int = Field(2, env="ALERTS_CHECK_INTERVAL_HOURS")
     
     # Pagination
     datasets_per_page: int = Field(10, env="DATASETS_PER_PAGE")

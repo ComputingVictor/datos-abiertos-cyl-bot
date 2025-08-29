@@ -1,5 +1,6 @@
 """Database models and configuration."""
 
+import logging
 import os
 from datetime import datetime
 from typing import List, Optional
@@ -19,6 +20,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, relationship, sessionmaker
 
 Base = declarative_base()
+logger = logging.getLogger(__name__)
 
 
 class User(Base):
@@ -174,6 +176,10 @@ class DatabaseManager:
             session.add(subscription)
             session.commit()
             return True
+        except Exception as e:
+            session.rollback()
+            logger.error(f"Error adding subscription: {e}", exc_info=True)
+            raise
         finally:
             session.close()
 

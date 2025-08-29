@@ -673,22 +673,43 @@ async def handle_subscription(query, context) -> None:
         
         if success:
             type_text = "categoría" if sub_type == "theme" else "dataset"
+            # Escape HTML characters in subscription name
+            safe_name = sub_name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            
+            # Add home button
+            from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+            keyboard = InlineKeyboardMarkup([[
+                InlineKeyboardButton("🏠 Inicio", callback_data="start")
+            ]])
+            
             await query.edit_message_text(
-                f"✅ Te has suscrito a la {type_text}: *{sub_name}*\n\n"
-                f"Recibirás alertas cuando haya cambios.\n\n"
+                f"✅ Te has suscrito a la {type_text}: {sub_name}\n\n"
+                f"Recibirás alertas automáticas cada 2 horas si hay cambios.\n\n"
                 f"Usa /mis_alertas para gestionar tus suscripciones.",
-                parse_mode="Markdown"
+                reply_markup=keyboard
             )
         else:
             type_text = "categoría" if sub_type == "theme" else "dataset"
+            # Escape HTML characters in subscription name
+            safe_name = sub_name.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            
+            # Add home button
+            from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+            keyboard = InlineKeyboardMarkup([[
+                InlineKeyboardButton("🏠 Inicio", callback_data="start")
+            ]])
+            
             await query.edit_message_text(
-                f"ℹ️ Ya estás suscrito a la {type_text}: *{sub_name}*",
-                parse_mode="Markdown"
+                f"ℹ️ Ya estás suscrito a la {type_text}: {sub_name}",
+                reply_markup=keyboard
             )
         
     except Exception as e:
-        logger.error(f"Error in handle_subscription: {e}")
-        await query.edit_message_text("❌ Error al procesar la suscripción.")
+        logger.error(f"Error in handle_subscription: {e}", exc_info=True)
+        await query.edit_message_text(
+            f"❌ Error al procesar la suscripción.\n\n"
+            f"Debug: {str(e)[:100]}"
+        )
 
 
 async def my_subscriptions_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
