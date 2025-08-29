@@ -44,35 +44,58 @@ body {
     border-bottom-color: var(--border-color);
 }
 
-/* CSS Variables for consistent theming */
+/* CSS Variables for consistent theming - Optimized Color Palette */
 :root {
-    --primary-color: #007AFF;
-    --secondary-color: #5856D6;
-    --accent-color: #FF3B30;
-    --success-color: #34C759;
-    --warning-color: #FF9500;
-    --text-primary: #1d1d1f;
-    --text-secondary: #86868b;
+    /* Primary Colors - Ocean Depth Palette */
+    --primary-color: #0066CC;
+    --secondary-color: #4A90E2;
+    --tertiary-color: #1E3A8A;
+    
+    /* Accent Colors */
+    --accent-success: #10B981;
+    --accent-warning: #F59E0B;
+    --accent-purple: #8B5CF6;
+    
+    /* Gray Scale */
+    --gray-50: #F8FAFC;
+    --gray-100: #F1F5F9;
+    --gray-200: #E2E8F0;
+    --gray-300: #CBD5E1;
+    --gray-600: #475569;
+    --gray-800: #1E293B;
+    --gray-900: #0F172A;
+    
+    /* Semantic Colors */
+    --text-primary: var(--gray-900);
+    --text-secondary: var(--gray-600);
     --background-primary: #ffffff;
-    --background-secondary: #f5f5f7;
-    --border-color: #d2d2d7;
-    --shadow-light: 0 4px 16px rgba(0, 0, 0, 0.1);
-    --shadow-medium: 0 8px 32px rgba(0, 0, 0, 0.15);
-    --shadow-heavy: 0 16px 64px rgba(0, 0, 0, 0.2);
+    --background-secondary: var(--gray-50);
+    --background-tertiary: var(--gray-100);
+    --border-color: var(--gray-200);
+    
+    /* Shadows */
+    --shadow-light: 0 4px 16px rgba(15, 23, 42, 0.08);
+    --shadow-medium: 0 8px 32px rgba(15, 23, 42, 0.12);
+    --shadow-heavy: 0 16px 64px rgba(15, 23, 42, 0.16);
+    
+    /* Border Radius */
     --border-radius: 12px;
     --border-radius-large: 20px;
-    --transition-fast: 0.2s ease;
-    --transition-medium: 0.3s ease;
-    --transition-slow: 0.5s ease;
+    
+    /* Transitions */
+    --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-medium: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark mode variables */
+/* Dark mode variables - Updated with new palette */
 :root.dark-mode {
-    --text-primary: #f5f5f7;
-    --text-secondary: #a1a1a6;
-    --background-primary: #000000;
-    --background-secondary: #1c1c1e;
-    --border-color: #38383a;
+    --text-primary: var(--gray-50);
+    --text-secondary: var(--gray-300);
+    --background-primary: var(--gray-900);
+    --background-secondary: var(--gray-800);
+    --background-tertiary: #2D3748;
+    --border-color: #4A5568;
 }
 
 /* Auto dark/light mode transition */
@@ -196,7 +219,7 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     align-items: center;
     position: relative;
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
     padding: 120px 0 80px;
     z-index: 1;
 }
@@ -217,22 +240,14 @@ h1, h2, h3, h4, h5, h6 {
     line-height: 1.1;
     margin-bottom: 24px;
     letter-spacing: -0.02em;
-    color: #1a202c;
-}
-
-:root.dark-mode .hero-title {
     color: var(--text-primary);
 }
 
 .hero-subtitle {
     font-size: 1.5rem;
-    color: #4a5568;
+    color: var(--text-secondary);
     margin-bottom: 40px;
     line-height: 1.4;
-}
-
-:root.dark-mode .hero-subtitle {
-    color: var(--text-secondary);
 }
 
 .hero-buttons {
@@ -267,7 +282,7 @@ h1, h2, h3, h4, h5, h6 {
 .btn-primary:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-medium);
-    background: #0056b3;
+    background: var(--tertiary-color);
 }
 
 .btn-primary.large {
@@ -382,10 +397,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .bot-message .message-text {
-    background: #f1f5f9;
-    color: #1a202c;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid #e2e8f0;
+    background: var(--gray-100);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-light);
+    border: 1px solid var(--border-color);
 }
 
 .user-message .message-text {
@@ -430,22 +445,14 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 3rem;
     margin-bottom: 20px;
     font-weight: 700;
-    color: #1a202c;
-}
-
-:root.dark-mode .section-title {
     color: var(--text-primary);
 }
 
 .section-subtitle {
     font-size: 1.3rem;
-    color: #4a5568;
+    color: var(--text-secondary);
     max-width: 600px;
     margin: 0 auto;
-}
-
-:root.dark-mode .section-subtitle {
-    color: var(--text-secondary);
 }
 
 .features-grid {
@@ -494,18 +501,18 @@ h1, h2, h3, h4, h5, h6 {
 .feature-title {
     font-size: 1.5rem;
     margin-bottom: 16px;
-    color: #1a202c;
+    color: var(--text-primary);
     font-weight: 600;
 }
 
 .feature-description {
-    color: #4a5568;
+    color: var(--text-secondary);
     margin-bottom: 24px;
     line-height: 1.6;
 }
 
 .feature-demo {
-    background: #f8f9fa;
+    background: var(--gray-100);
     padding: 12px 16px;
     border-radius: 8px;
     border-left: 4px solid var(--primary-color);
@@ -520,7 +527,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Stats Section */
 .stats {
     padding: 120px 0;
-    background: #1a202c;
+    background: var(--gray-800);
     color: white;
     position: relative;
     z-index: 3;
@@ -572,7 +579,7 @@ h1, h2, h3, h4, h5, h6 {
 /* CTA Section */
 .cta {
     padding: 120px 0;
-    background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-purple) 100%);
     color: white;
     text-align: center;
     position: relative;
@@ -594,7 +601,7 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Footer */
 .footer {
-    background: #1a202c;
+    background: var(--gray-900);
     color: white;
     padding: 80px 0 40px;
     position: relative;
