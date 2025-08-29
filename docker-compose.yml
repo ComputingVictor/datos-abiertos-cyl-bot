@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  jcyl-bot:
+    build: .
+    container_name: jcyl-encyclopedia-bot
+    restart: unless-stopped
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_WEBHOOK_URL=${TELEGRAM_WEBHOOK_URL:-}
+      - TELEGRAM_WEBHOOK_PATH=${TELEGRAM_WEBHOOK_PATH:-/webhook}
+      - FASTAPI_HOST=${FASTAPI_HOST:-0.0.0.0}
+      - FASTAPI_PORT=${FASTAPI_PORT:-8000}
+      - FASTAPI_DEBUG=${FASTAPI_DEBUG:-false}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///data/jcyl_bot.db}
+      - JCYL_API_BASE_URL=${JCYL_API_BASE_URL:-https://analisis.datosabiertos.jcyl.es}
+      - ALERTS_ENABLED=${ALERTS_ENABLED:-true}
+      - ALERTS_CHECK_INTERVAL_HOURS=${ALERTS_CHECK_INTERVAL_HOURS:-6}
+      - DATASETS_PER_PAGE=${DATASETS_PER_PAGE:-10}
+      - THEMES_PER_PAGE=${THEMES_PER_PAGE:-10}
+      - KEYWORDS_PER_PAGE=${KEYWORDS_PER_PAGE:-10}
+    ports:
+      - "${FASTAPI_PORT:-8000}:8000"
+    volumes:
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: PostgreSQL database (uncomment if needed)
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: jcyl-bot-db
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_DB=${POSTGRES_DB:-jcyl_bot}
+  #     - POSTGRES_USER=${POSTGRES_USER:-jcyl_bot}
+  #     - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+  # Optional: Redis for caching (uncomment if needed)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: jcyl-bot-redis
+  #   restart: unless-stopped
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jcyl-encyclopedia-bot"
+version = "1.0.0"
+description = "Telegram bot and FastAPI backend for JCYL Open Data Explorer"
+authors = [{name = "JCYL Bot", email = "bot@example.com"}]
+license = {text = "MIT"}
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi==0.104.1",
+    "uvicorn[standard]==0.24.0",
+    "python-telegram-bot==20.7",
+    "httpx==0.25.2",
+    "sqlalchemy==2.0.23",
+    "alembic==1.12.1",
+    "apscheduler==3.10.4",
+    "python-dotenv==1.0.0",
+    "pydantic==2.5.0",
+    "pydantic-settings==2.1.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==7.4.3",
+    "pytest-asyncio==0.21.1",
+    "black==23.11.0",
+    "flake8==6.1.0",
+    "mypy==1.7.1"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
