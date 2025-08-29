@@ -10,11 +10,11 @@ document.addEventListener('DOMContentLoaded', function() {
     initTypingEffect();
 });
 
-// Scroll-based animations (like Apple websites)
+// Scroll-based animations (improved and optimized)
 function initScrollAnimations() {
     const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -100px 0px'
+        threshold: 0.15,
+        rootMargin: '0px 0px -50px 0px'
     };
 
     const observer = new IntersectionObserver(function(entries) {
@@ -23,6 +23,8 @@ function initScrollAnimations() {
                 const delay = entry.target.dataset.delay || 0;
                 setTimeout(() => {
                     entry.target.classList.add('visible');
+                    // Unobserve after animation to prevent re-triggering
+                    observer.unobserve(entry.target);
                 }, delay);
             }
         });
@@ -159,16 +161,20 @@ function initSmoothScrolling() {
     });
 }
 
-// Parallax effect for hero section
+// Subtle parallax effect for hero section (reduced to prevent overlaps)
 function initParallax() {
     const hero = document.querySelector('.hero');
     if (!hero) return;
 
-    window.addEventListener('scroll', () => {
+    const throttledParallax = throttle(() => {
         const scrolled = window.pageYOffset;
-        const parallaxSpeed = 0.5;
-        hero.style.transform = `translateY(${scrolled * parallaxSpeed}px)`;
-    });
+        const parallaxSpeed = 0.2; // Reduced speed
+        const maxTransform = 100; // Limit maximum transform
+        const transform = Math.min(scrolled * parallaxSpeed, maxTransform);
+        hero.style.transform = `translateY(${transform}px)`;
+    }, 16);
+
+    window.addEventListener('scroll', throttledParallax);
 }
 
 // Typing effect for hero title

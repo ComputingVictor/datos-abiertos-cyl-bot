@@ -158,8 +158,9 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     align-items: center;
     position: relative;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     padding: 120px 0 80px;
+    z-index: 1;
 }
 
 .hero-content {
@@ -178,11 +179,12 @@ h1, h2, h3, h4, h5, h6 {
     line-height: 1.1;
     margin-bottom: 24px;
     letter-spacing: -0.02em;
+    color: #1a202c;
 }
 
 .hero-subtitle {
     font-size: 1.5rem;
-    color: var(--text-secondary);
+    color: #4a5568;
     margin-bottom: 40px;
     line-height: 1.4;
 }
@@ -365,7 +367,9 @@ h1, h2, h3, h4, h5, h6 {
 /* Features Section */
 .features {
     padding: 120px 0;
-    background: var(--background-secondary);
+    background: #ffffff;
+    position: relative;
+    z-index: 2;
 }
 
 .section-header {
@@ -377,11 +381,12 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 3rem;
     margin-bottom: 20px;
     font-weight: 700;
+    color: #1a202c;
 }
 
 .section-subtitle {
     font-size: 1.3rem;
-    color: var(--text-secondary);
+    color: #4a5568;
     max-width: 600px;
     margin: 0 auto;
 }
@@ -432,11 +437,12 @@ h1, h2, h3, h4, h5, h6 {
 .feature-title {
     font-size: 1.5rem;
     margin-bottom: 16px;
-    color: var(--text-primary);
+    color: #1a202c;
+    font-weight: 600;
 }
 
 .feature-description {
-    color: var(--text-secondary);
+    color: #4a5568;
     margin-bottom: 24px;
     line-height: 1.6;
 }
@@ -457,8 +463,10 @@ h1, h2, h3, h4, h5, h6 {
 /* Stats Section */
 .stats {
     padding: 120px 0;
-    background: var(--text-primary);
+    background: #1a202c;
     color: white;
+    position: relative;
+    z-index: 3;
 }
 
 .stats .section-title,
@@ -505,9 +513,11 @@ h1, h2, h3, h4, h5, h6 {
 /* CTA Section */
 .cta {
     padding: 120px 0;
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
     color: white;
     text-align: center;
+    position: relative;
+    z-index: 4;
 }
 
 .cta-title {
@@ -525,9 +535,11 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Footer */
 .footer {
-    background: var(--text-primary);
+    background: #1a202c;
     color: white;
     padding: 80px 0 40px;
+    position: relative;
+    z-index: 5;
 }
 
 .footer-content {
@@ -650,8 +662,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Utility Classes */
 .fade-in-up {
     opacity: 0;
-    transform: translateY(60px);
-    transition: all 0.8s ease;
+    transform: translateY(40px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .fade-in-up.visible {
