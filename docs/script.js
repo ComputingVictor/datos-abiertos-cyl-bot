@@ -1,7 +1,40 @@
 // Apple-style JavaScript with smooth animations and interactions
 
+// Automatic day/night mode based on time
+function initTimeBasedTheme() {
+    const hour = new Date().getHours();
+    const root = document.documentElement;
+    
+    // Dark mode: 20:00 - 07:59 (8 PM to 8 AM)
+    // Light mode: 08:00 - 19:59 (8 AM to 8 PM)
+    if (hour >= 20 || hour < 8) {
+        root.classList.add('dark-mode');
+        console.log('🌙 Modo nocturno activado (20:00 - 07:59)');
+    } else {
+        root.classList.remove('dark-mode');
+        console.log('☀️ Modo día activado (08:00 - 19:59)');
+    }
+    
+    // Update every hour
+    setInterval(() => {
+        const currentHour = new Date().getHours();
+        if (currentHour >= 20 || currentHour < 8) {
+            if (!root.classList.contains('dark-mode')) {
+                root.classList.add('dark-mode');
+                console.log('🌙 Cambiado a modo nocturno');
+            }
+        } else {
+            if (root.classList.contains('dark-mode')) {
+                root.classList.remove('dark-mode');
+                console.log('☀️ Cambiado a modo día');
+            }
+        }
+    }, 60000); // Check every minute
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all features
+    initTimeBasedTheme();
     initScrollAnimations();
     initNavigation();
     initCounters();
@@ -107,41 +140,10 @@ function updateActiveNavLink() {
     });
 }
 
-// Animated counters for statistics
+// Remove fake counters - no longer needed
 function initCounters() {
-    const counters = document.querySelectorAll('.stat-number');
-    
-    const counterObserver = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const counter = entry.target;
-                const target = parseInt(counter.dataset.count);
-                animateCounter(counter, target);
-                counterObserver.unobserve(counter);
-            }
-        });
-    }, { threshold: 0.5 });
-
-    counters.forEach(counter => {
-        counterObserver.observe(counter);
-    });
-}
-
-function animateCounter(element, target) {
-    let current = 0;
-    const increment = target / 100;
-    const duration = 2000; // 2 seconds
-    const stepTime = duration / 100;
-
-    const timer = setInterval(() => {
-        current += increment;
-        if (current >= target) {
-            element.textContent = target.toLocaleString();
-            clearInterval(timer);
-        } else {
-            element.textContent = Math.floor(current).toLocaleString();
-        }
-    }, stepTime);
+    // No fake statistics anymore - just visual elements
+    console.log('Statistics section loaded - no fake data');
 }
 
 // Smooth scrolling for anchor links
@@ -161,20 +163,10 @@ function initSmoothScrolling() {
     });
 }
 
-// Subtle parallax effect for hero section (reduced to prevent overlaps)
+// Remove problematic parallax effect completely
 function initParallax() {
-    const hero = document.querySelector('.hero');
-    if (!hero) return;
-
-    const throttledParallax = throttle(() => {
-        const scrolled = window.pageYOffset;
-        const parallaxSpeed = 0.2; // Reduced speed
-        const maxTransform = 100; // Limit maximum transform
-        const transform = Math.min(scrolled * parallaxSpeed, maxTransform);
-        hero.style.transform = `translateY(${transform}px)`;
-    }, 16);
-
-    window.addEventListener('scroll', throttledParallax);
+    // Parallax disabled to prevent overlapping issues
+    console.log('Parallax disabled for better UX');
 }
 
 // Typing effect for hero title
