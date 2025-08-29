@@ -48,7 +48,7 @@ class Subscription(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    subscription_type = Column(String(20), nullable=False)  # 'theme' or 'dataset'
+    subscription_type = Column(String(20), nullable=False)  # 'theme', 'dataset', or 'keyword'
     subscription_id = Column(String(255), nullable=False)  # theme name or dataset_id
     subscription_name = Column(String(500))  # human-readable name
     created_at = Column(DateTime, default=datetime.utcnow)

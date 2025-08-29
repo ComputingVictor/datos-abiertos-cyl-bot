@@ -4,6 +4,7 @@ import logging
 from typing import Optional
 import httpx
 import os
+from datetime import datetime, timedelta
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
@@ -303,6 +304,8 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         
         if data == "start":
             await show_themes(query, context)
+        elif data == "refresh_stats":
+            await refresh_portal_stats(query, context)
         elif data.startswith("themes_page:"):
             page = int(data.split(":")[1])
             await show_themes(query, context, page)
@@ -743,11 +746,21 @@ async def my_subscriptions_command(update: Update, context: ContextTypes.DEFAULT
         sub_list = [(s.id, s.subscription_type, s.subscription_name, s.subscription_id) for s in subscriptions]
         keyboard = create_subscriptions_keyboard(sub_list)
         
-        message = (
-            f"🔔 *Mis alertas*\n\n"
-            f"Tienes {len(subscriptions)} suscripciones activas.\n"
-            f"Toca una para cancelarla:"
-        )
+        # Count different types of subscriptions
+        theme_count = sum(1 for s in subscriptions if s.subscription_type == "theme")
+        dataset_count = sum(1 for s in subscriptions if s.subscription_type == "dataset")
+        keyword_count = sum(1 for s in subscriptions if s.subscription_type == "keyword")
+        
+        message = f"🔔 *Mis alertas*\n\n"
+        message += f"Tienes {len(subscriptions)} suscripciones activas:\n"
+        if theme_count > 0:
+            message += f"📂 {theme_count} categorías\n"
+        if dataset_count > 0:
+            message += f"📄 {dataset_count} datasets\n"
+        if keyword_count > 0:
+            message += f"🔍 {keyword_count} palabras clave\n"
+        message += f"\nRecibirás alertas cuando haya cambios cada 2 horas.\n\n"
+        message += f"Toca una para cancelarla:"
         
         await update.message.reply_text(
             message,
@@ -886,6 +899,451 @@ async def handle_unsubscribe(query, context, sub_id: int) -> None:
             "❌ Error al procesar la cancelación.",
             reply_markup=keyboard
         )
+
+
+async def portal_stats_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /estadisticas command."""
+    user = update.effective_user
+    if not user:
+        return
+
+    loading_message = await update.message.reply_text("📊 Obteniendo estadísticas del portal...")
+
+    try:
+        # Get basic portal statistics
+        themes = await api_client.get_themes()
+        total_themes = len(themes)
+        
+        # Get total datasets count and recent activity
+        recent_datasets, total_datasets_estimate = await api_client.get_datasets(limit=100, offset=0)
+        
+        if total_datasets_estimate == 0:
+            # Fallback calculation
+            total_datasets_estimate = len(recent_datasets) * 10  # Conservative estimate
+        
+        # Calculate recent activity (last 30 days)
+        cutoff_date = datetime.now() - timedelta(days=30)
+        recent_count = 0
+        
+        # Count datasets modified in last 30 days
+        sample_dates = []
+        for i, dataset in enumerate(recent_datasets):
+            if dataset.modified and dataset.modified != "Dato no disponible":
+                # Collect first 3 dates as samples for debugging
+                if len(sample_dates) < 3:
+                    sample_dates.append(dataset.modified)
+                try:
+                    modified_date = None
+                    date_str = dataset.modified.strip()
+                    
+                    # Try different date formats
+                    formats = [
+                        "%d/%m/%Y",         # 01/12/2024
+                        "%Y-%m-%d",         # 2024-12-01
+                        "%Y-%m-%dT%H:%M:%S", # 2024-12-01T10:30:45
+                        "%Y-%m-%dT%H:%M:%SZ", # 2024-12-01T10:30:45Z
+                        "%Y-%m-%d %H:%M:%S", # 2024-12-01 10:30:45
+                    ]
+                    
+                    for fmt in formats:
+                        try:
+                            if "T" in date_str and "Z" in date_str:
+                                modified_date = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+                            else:
+                                modified_date = datetime.strptime(date_str, fmt)
+                            break
+                        except ValueError:
+                            continue
+                    
+                    if modified_date and modified_date >= cutoff_date:
+                        recent_count += 1
+                        
+                except Exception as e:
+                    # Debug: log some failed dates to understand the format
+                    logger.debug(f"Failed to parse date: {dataset.modified}")
+                    continue
+        
+        # Log sample dates for debugging
+        logger.info(f"Sample modification dates found: {sample_dates[:3]}")
+        logger.info(f"Found {recent_count} datasets updated in last 30 days")
+        
+        # Get most active themes (top 5)
+        theme_counts = []
+        for theme in themes[:10]:  # Check top 10 themes
+            try:
+                theme_datasets, theme_count = await api_client.get_datasets(theme=theme.name, limit=1)
+                count = theme_count or theme.count
+                if count:
+                    theme_counts.append((theme.name, count))
+            except:
+                continue
+        
+        theme_counts.sort(key=lambda x: x[1], reverse=True)
+        top_themes = theme_counts[:5]
+        
+        # Get user subscription stats
+        session = db_manager.get_session()
+        try:
+            from ..models import Subscription, User
+            total_users = session.query(User).count()
+            active_subs = session.query(Subscription).filter(Subscription.is_active == True).count()
+        finally:
+            session.close()
+        
+        # Build statistics message
+        stats_message = "📊 **Estadísticas del Portal de Datos Abiertos CyL**\n\n"
+        
+        stats_message += f"📈 **Datos Generales**\n"
+        stats_message += f"• Total datasets: **~{total_datasets_estimate:,}**\n"
+        stats_message += f"• Categorías disponibles: **{total_themes}**\n"
+        stats_message += f"• Actualizados últimos 30 días: **{recent_count}**\n\n"
+        
+        stats_message += f"🔥 **Categorías más populares**\n"
+        for i, (theme_name, count) in enumerate(top_themes, 1):
+            emoji = ["🥇", "🥈", "🥉", "🏅", "🏅"][i-1]
+            stats_message += f"{emoji} **{theme_name}**: {count} datasets\n"
+        
+        if active_subs > 0:
+            stats_message += f"\n🤖 **Estadísticas del Bot**\n"
+            stats_message += f"• Usuarios registrados: **{total_users}**\n"
+            stats_message += f"• Suscripciones activas: **{active_subs}**\n"
+        
+        stats_message += f"\n📅 Actualizado: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+        
+        # Create keyboard
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔄 Actualizar", callback_data="refresh_stats")],
+            [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
+        ])
+        
+        await loading_message.edit_text(stats_message, reply_markup=keyboard)
+        
+    except Exception as e:
+        logger.error(f"Error getting portal stats: {e}")
+        await loading_message.edit_text(
+            "❌ Error al obtener las estadísticas.\n\n"
+            "Inténtalo de nuevo más tarde.",
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("🏠 Inicio", callback_data="start")
+            ]])
+        )
+
+
+async def refresh_portal_stats(query, context) -> None:
+    """Refresh portal statistics via callback."""
+    await query.edit_message_text("📊 Actualizando estadísticas...")
+    
+    try:
+        # Get updated statistics (same logic as portal_stats_command)
+        themes = await api_client.get_themes()
+        total_themes = len(themes)
+        
+        recent_datasets, total_datasets_estimate = await api_client.get_datasets(limit=100, offset=0)
+        if total_datasets_estimate == 0:
+            total_datasets_estimate = len(recent_datasets) * 10
+        
+        # Calculate recent activity
+        cutoff_date = datetime.now() - timedelta(days=30)
+        recent_count = 0
+        
+        for dataset in recent_datasets:
+            if dataset.modified and dataset.modified != "Dato no disponible":
+                try:
+                    modified_date = None
+                    date_str = dataset.modified.strip()
+                    
+                    # Try different date formats
+                    formats = [
+                        "%d/%m/%Y",         # 01/12/2024
+                        "%Y-%m-%d",         # 2024-12-01
+                        "%Y-%m-%dT%H:%M:%S", # 2024-12-01T10:30:45
+                        "%Y-%m-%dT%H:%M:%SZ", # 2024-12-01T10:30:45Z
+                        "%Y-%m-%d %H:%M:%S", # 2024-12-01 10:30:45
+                    ]
+                    
+                    for fmt in formats:
+                        try:
+                            if "T" in date_str and "Z" in date_str:
+                                modified_date = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+                            else:
+                                modified_date = datetime.strptime(date_str, fmt)
+                            break
+                        except ValueError:
+                            continue
+                    
+                    if modified_date and modified_date >= cutoff_date:
+                        recent_count += 1
+                        
+                except Exception as e:
+                    logger.debug(f"Failed to parse date: {dataset.modified}")
+                    continue
+        
+        # Get theme counts
+        theme_counts = []
+        for theme in themes[:10]:
+            try:
+                theme_datasets, theme_count = await api_client.get_datasets(theme=theme.name, limit=1)
+                count = theme_count or theme.count
+                if count:
+                    theme_counts.append((theme.name, count))
+            except:
+                continue
+        
+        theme_counts.sort(key=lambda x: x[1], reverse=True)
+        top_themes = theme_counts[:5]
+        
+        # Get subscription stats
+        session = db_manager.get_session()
+        try:
+            from ..models import Subscription, User
+            total_users = session.query(User).count()
+            active_subs = session.query(Subscription).filter(Subscription.is_active == True).count()
+        finally:
+            session.close()
+        
+        # Build message
+        stats_message = "📊 **Estadísticas del Portal de Datos Abiertos CyL**\n\n"
+        stats_message += f"📈 **Datos Generales**\n"
+        stats_message += f"• Total datasets: **~{total_datasets_estimate:,}**\n"
+        stats_message += f"• Categorías disponibles: **{total_themes}**\n"
+        stats_message += f"• Actualizados últimos 30 días: **{recent_count}**\n\n"
+        
+        stats_message += f"🔥 **Categorías más populares**\n"
+        for i, (theme_name, count) in enumerate(top_themes, 1):
+            emoji = ["🥇", "🥈", "🥉", "🏅", "🏅"][i-1]
+            stats_message += f"{emoji} **{theme_name}**: {count} datasets\n"
+        
+        if active_subs > 0:
+            stats_message += f"\n🤖 **Estadísticas del Bot**\n"
+            stats_message += f"• Usuarios registrados: **{total_users}**\n"
+            stats_message += f"• Suscripciones activas: **{active_subs}**\n"
+        
+        stats_message += f"\n📅 Actualizado: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+        
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🔄 Actualizar", callback_data="refresh_stats")],
+            [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
+        ])
+        
+        await query.edit_message_text(stats_message, reply_markup=keyboard)
+        
+    except Exception as e:
+        logger.error(f"Error refreshing stats: {e}")
+        await query.edit_message_text(
+            "❌ Error al actualizar las estadísticas.",
+            reply_markup=InlineKeyboardMarkup([[
+                InlineKeyboardButton("🏠 Inicio", callback_data="start")
+            ]])
+        )
+
+
+async def keyword_alerts_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /alertas_palabras command."""
+    user = update.effective_user
+    if not user:
+        return
+
+    if not context.args:
+        # Show help and current keyword alerts
+        user_db_id = db_manager.get_or_create_user(telegram_id=user.id)
+        
+        # Get existing keyword subscriptions
+        session = db_manager.get_session()
+        try:
+            from ..models import Subscription
+            keyword_subs = session.query(Subscription).filter(
+                Subscription.user_id == user_db_id,
+                Subscription.subscription_type == "keyword",
+                Subscription.is_active == True
+            ).all()
+        finally:
+            session.close()
+        
+        message = "🔍 **Alertas por Palabras Clave**\n\n"
+        message += "Recibe notificaciones cuando aparezcan nuevos datasets que contengan palabras específicas.\n\n"
+        
+        if keyword_subs:
+            message += "🔔 **Tus alertas activas:**\n"
+            for sub in keyword_subs:
+                message += f"• {sub.subscription_id}\n"
+            message += "\n"
+        
+        message += "**Uso:**\n"
+        message += "`/alertas_palabras [palabra]` - Añadir alerta\n"
+        message += "`/alertas_palabras quitar [palabra]` - Quitar alerta\n\n"
+        message += "**Ejemplos:**\n"
+        message += "`/alertas_palabras transporte`\n"
+        message += "`/alertas_palabras educación`\n"
+        message += "`/alertas_palabras quitar transporte`"
+        
+        keyboard = InlineKeyboardMarkup([[
+            InlineKeyboardButton("🏠 Inicio", callback_data="start")
+        ]])
+        
+        await update.message.reply_text(message, reply_markup=keyboard)
+        return
+    
+    # Process the command
+    args = context.args
+    user_db_id = db_manager.get_or_create_user(telegram_id=user.id)
+    
+    if args[0].lower() == "quitar" and len(args) > 1:
+        # Remove keyword alert
+        keyword = " ".join(args[1:]).lower().strip()
+        
+        session = db_manager.get_session()
+        try:
+            from ..models import Subscription
+            existing = session.query(Subscription).filter(
+                Subscription.user_id == user_db_id,
+                Subscription.subscription_type == "keyword",
+                Subscription.subscription_id == keyword,
+                Subscription.is_active == True
+            ).first()
+            
+            if existing:
+                existing.is_active = False
+                session.commit()
+                
+                keyboard = InlineKeyboardMarkup([[
+                    InlineKeyboardButton("🏠 Inicio", callback_data="start")
+                ]])
+                
+                await update.message.reply_text(
+                    f"✅ Alerta eliminada para: {keyword}\n\n"
+                    f"Ya no recibirás notificaciones de datasets con esta palabra.",
+                    reply_markup=keyboard
+                )
+            else:
+                await update.message.reply_text(
+                    f"❌ No tienes alertas activas para: {keyword}"
+                )
+        finally:
+            session.close()
+    else:
+        # Add keyword alert
+        keyword = " ".join(args).lower().strip()
+        
+        if len(keyword) < 3:
+            await update.message.reply_text(
+                "❌ La palabra clave debe tener al menos 3 caracteres."
+            )
+            return
+        
+        success = db_manager.add_subscription(user_db_id, "keyword", keyword, f"Palabra clave: {keyword}")
+        
+        keyboard = InlineKeyboardMarkup([[
+            InlineKeyboardButton("🏠 Inicio", callback_data="start")
+        ]])
+        
+        if success:
+            await update.message.reply_text(
+                f"✅ Alerta creada para: {keyword}\n\n"
+                f"Recibirás notificaciones cada 2 horas si aparecen nuevos datasets que contengan esta palabra.\n\n"
+                f"Usa /mis_alertas para gestionar todas tus suscripciones.",
+                reply_markup=keyboard
+            )
+        else:
+            await update.message.reply_text(
+                f"ℹ️ Ya tienes una alerta activa para: {keyword}",
+                reply_markup=keyboard
+            )
+
+
+async def admin_users_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /admin_users command - Only for admins."""
+    user = update.effective_user
+    if not user:
+        return
+
+    # Lista de IDs de administradores (configurable)
+    ADMIN_TELEGRAM_IDS = [
+        # Añade tu Telegram ID aquí
+        # 123456789,  # Tu ID de Telegram
+    ]
+    
+    if user.id not in ADMIN_TELEGRAM_IDS:
+        await update.message.reply_text("❌ No tienes permisos de administrador.")
+        return
+    
+    try:
+        # Get all users from database
+        session = db_manager.get_session()
+        try:
+            from ..models import User, Subscription
+            
+            # Get users with subscription counts
+            users_query = session.query(
+                User.telegram_id,
+                User.username, 
+                User.first_name, 
+                User.last_name,
+                User.created_at
+            ).all()
+            
+            if not users_query:
+                await update.message.reply_text("📭 No hay usuarios registrados.")
+                return
+            
+            # Build user list message
+            message = "👥 **Lista de Usuarios del Bot**\n\n"
+            
+            for user_data in users_query:
+                telegram_id, username, first_name, last_name, created_at = user_data
+                
+                # Build display name
+                name_parts = []
+                if first_name:
+                    name_parts.append(first_name)
+                if last_name:
+                    name_parts.append(last_name)
+                display_name = " ".join(name_parts) if name_parts else "Sin nombre"
+                
+                username_text = f"@{username}" if username else "Sin username"
+                
+                # Get subscription count for this user
+                user_db = session.query(User).filter_by(telegram_id=telegram_id).first()
+                if user_db:
+                    sub_count = session.query(Subscription).filter(
+                        Subscription.user_id == user_db.id,
+                        Subscription.is_active == True
+                    ).count()
+                else:
+                    sub_count = 0
+                
+                message += f"• **{display_name}**\n"
+                message += f"  └ {username_text}\n"
+                message += f"  └ ID: `{telegram_id}`\n"
+                message += f"  └ Suscripciones: {sub_count}\n"
+                message += f"  └ Registrado: {created_at.strftime('%d/%m/%Y')}\n\n"
+            
+            total_users = len(users_query)
+            message += f"📊 **Total: {total_users} usuarios**"
+            
+            # Send message (split if too long)
+            if len(message) > 4000:
+                # Split message
+                parts = message.split('\n\n')
+                current_message = "👥 **Lista de Usuarios del Bot**\n\n"
+                
+                for part in parts[1:-1]:  # Skip header and footer
+                    if len(current_message + part) > 3800:
+                        await update.message.reply_text(current_message, parse_mode="Markdown")
+                        current_message = ""
+                    current_message += part + "\n\n"
+                
+                # Send remaining + footer
+                current_message += parts[-1]
+                await update.message.reply_text(current_message, parse_mode="Markdown")
+            else:
+                await update.message.reply_text(message, parse_mode="Markdown")
+                
+        finally:
+            session.close()
+            
+    except Exception as e:
+        logger.error(f"Error in admin_users_command: {e}")
+        await update.message.reply_text("❌ Error al obtener la lista de usuarios.")
 
 
 async def search_datasets(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

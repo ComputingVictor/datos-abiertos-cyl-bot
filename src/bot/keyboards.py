@@ -303,8 +303,15 @@ def create_subscriptions_keyboard(subscriptions: List[Tuple[int, str, str, str]]
     keyboard = []
     
     for sub_id, sub_type, sub_name, _ in subscriptions:
-        icon = "📊" if sub_type == "theme" else "📄"
-        type_text = "Categoría" if sub_type == "theme" else "Dataset"
+        if sub_type == "theme":
+            icon = "📊"
+            type_text = "Categoría"
+        elif sub_type == "keyword":
+            icon = "🔍"
+            type_text = "Palabra clave"
+        else:
+            icon = "📄"
+            type_text = "Dataset"
         name = sub_name[:30] + "..." if len(sub_name) > 30 else sub_name
         
         keyboard.append([

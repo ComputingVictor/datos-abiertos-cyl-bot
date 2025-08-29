@@ -13,9 +13,11 @@ from .handlers import (
     help_command,
     search_datasets,
     recent_datasets,
+    portal_stats_command,
     dataset_stats,
     user_bookmarks,
-    handle_text_search
+    handle_text_search,
+    keyword_alerts_command
 )
 
 logger = logging.getLogger(__name__)
@@ -36,9 +38,10 @@ def create_bot_application() -> Application:
     application.add_handler(CommandHandler("help", help_command))
     application.add_handler(CommandHandler("buscar", search_datasets))
     application.add_handler(CommandHandler("recientes", recent_datasets))
-    application.add_handler(CommandHandler("estadisticas", dataset_stats))
+    application.add_handler(CommandHandler("estadisticas", portal_stats_command))
     application.add_handler(CommandHandler("favoritos", user_bookmarks))
     application.add_handler(CommandHandler("mis_alertas", my_subscriptions_command))
+    application.add_handler(CommandHandler("alertas_palabras", keyword_alerts_command))
     application.add_handler(CallbackQueryHandler(handle_callback))
     # Handle text messages as search queries (add this last to not interfere with commands)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_search))

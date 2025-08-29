@@ -37,6 +37,7 @@ class AlertService:
         try:
             await self._check_theme_changes()
             await self._check_dataset_changes()
+            await self._check_keyword_changes()
         except Exception as e:
             logger.error(f"Error in change detection: {e}")
 
@@ -312,6 +313,110 @@ class AlertService:
                     )
             except Exception as e:
                 logger.error(f"Error sending notification to user {subscription.user_id}: {e}")
+
+    async def _check_keyword_changes(self) -> None:
+        """Check for new datasets matching keyword subscriptions."""
+        logger.info("Checking keyword changes...")
+        
+        # Get all keyword subscriptions
+        session = self.db_manager.get_session()
+        try:
+            from ..models import Subscription
+            keyword_subscriptions = session.query(Subscription).filter(
+                Subscription.subscription_type == "keyword",
+                Subscription.is_active == True
+            ).all()
+            
+            if not keyword_subscriptions:
+                logger.info("No active keyword subscriptions")
+                return
+            
+            # Get unique keywords
+            keywords = set(sub.subscription_id for sub in keyword_subscriptions)
+            
+            for keyword in keywords:
+                try:
+                    await self._check_single_keyword(keyword)
+                except Exception as e:
+                    logger.error(f"Error checking keyword {keyword}: {e}")
+                    continue
+            
+        finally:
+            session.close()
+
+    async def _check_single_keyword(self, keyword: str) -> None:
+        """Check for new datasets matching a specific keyword."""
+        # Search for datasets containing the keyword
+        try:
+            # Search in recent datasets (last 100)
+            recent_datasets, _ = await self.api_client.get_datasets(limit=100, offset=0)
+            matching_datasets = []
+            
+            for dataset in recent_datasets:
+                # Check if keyword appears in title or description
+                title_match = keyword.lower() in dataset.title.lower() if dataset.title else False
+                desc_match = keyword.lower() in dataset.description.lower() if dataset.description else False
+                
+                if title_match or desc_match:
+                    # Check if this is a "new" dataset (modified in last 7 days)
+                    if dataset.modified and dataset.modified != "Dato no disponible":
+                        try:
+                            from datetime import datetime, timedelta
+                            modified_date = None
+                            if "/" in dataset.modified:
+                                modified_date = datetime.strptime(dataset.modified, "%d/%m/%Y")
+                            elif "-" in dataset.modified:
+                                if "T" in dataset.modified:
+                                    modified_date = datetime.fromisoformat(dataset.modified.replace("Z", "+00:00"))
+                                else:
+                                    modified_date = datetime.strptime(dataset.modified, "%Y-%m-%d")
+                            
+                            if modified_date and modified_date >= datetime.now() - timedelta(days=7):
+                                matching_datasets.append(dataset)
+                        except:
+                            continue
+            
+            if matching_datasets:
+                await self._notify_keyword_matches(keyword, matching_datasets)
+                
+        except Exception as e:
+            logger.error(f"Error searching for keyword {keyword}: {e}")
+
+    async def _notify_keyword_matches(self, keyword: str, matching_datasets: list) -> None:
+        """Notify users about datasets matching their keyword alerts."""
+        subscribers = self.db_manager.get_subscriptions_by_type("keyword", keyword)
+        
+        if not subscribers:
+            return
+        
+        logger.info(f"Notifying {len(subscribers)} users about {len(matching_datasets)} datasets matching keyword '{keyword}'")
+        
+        # Create message
+        message = f"🔍 *Nuevos datasets con '{keyword}'*\n\n"
+        
+        for dataset in matching_datasets[:3]:  # Limit to first 3
+            title = dataset.title[:50] + "..." if len(dataset.title) > 50 else dataset.title
+            message += f"📄 *{title}*\n"
+            message += f"🏢 {dataset.publisher}\n"
+            message += f"📅 {dataset.modified}\n\n"
+        
+        if len(matching_datasets) > 3:
+            message += f"... y {len(matching_datasets) - 3} más.\n\n"
+        
+        message += "Usa /start para explorar los nuevos datasets."
+        
+        # Send notifications
+        for subscription in subscribers:
+            try:
+                user = self.db_manager.get_session().query(self.db_manager.User).filter_by(id=subscription.user_id).first()
+                if user:
+                    await self.bot.send_message(
+                        chat_id=user.telegram_id,
+                        text=message,
+                        parse_mode="Markdown"
+                    )
+            except Exception as e:
+                logger.error(f"Error sending keyword notification to user {subscription.user_id}: {e}")
 
 
 async def run_alert_check() -> None:
