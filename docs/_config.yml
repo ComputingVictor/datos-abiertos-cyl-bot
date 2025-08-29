@@ -1,0 +1,40 @@
+# GitHub Pages configuration for Datos CyL Bot
+title: "Bot Datos Abiertos CyL"
+description: "Tu asistente inteligente para datos abiertos de Castilla y León"
+author: "Datos CyL Bot Team"
+url: "https://computingvictor.github.io"
+baseurl: "/DATOS-ABIERTOS-CYL-BOT"
+
+# GitHub Pages settings
+theme: null
+plugins:
+  - jekyll-sitemap
+  - jekyll-feed
+
+# SEO settings
+lang: es
+timezone: Europe/Madrid
+
+# Social links
+telegram_url: "https://t.me/cyl_asistente_bot"
+github_url: "https://github.com/computingvictor/DATOS-ABIERTOS-CYL-BOT"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Exclude files
+exclude:
+  - README.md
+  - Dockerfile
+  - docker-compose.yml
+  - requirements.txt
+  - main.py
+  - src/
+  - tests/
+  - data/
+  - update_docker.sh
+  - pyproject.toml

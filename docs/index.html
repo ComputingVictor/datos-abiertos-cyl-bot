@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Datos Abiertos CyL - Tu Asistente de Datos de Castilla y León</title>
+    <meta name="description" content="Descubre y explora los datos abiertos de Castilla y León con nuestro bot inteligente de Telegram. Alertas, búsquedas y estadísticas al instante.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Apple-style favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav" id="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🤖</span>
+                <span class="logo-text">Datos CyL Bot</span>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item">
+                    <a href="#inicio" class="nav-link">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#funciones" class="nav-link">Funciones</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#estadisticas" class="nav-link">Estadísticas</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#contacto" class="nav-link">Contacto</a>
+                </li>
+            </ul>
+            <div class="nav-toggle" id="nav-toggle">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="inicio" class="hero">
+        <div class="hero-content">
+            <div class="hero-text fade-in-up">
+                <h1 class="hero-title">
+                    Tu asistente inteligente para
+                    <span class="gradient-text">Datos Abiertos</span>
+                    de Castilla y León
+                </h1>
+                <p class="hero-subtitle">
+                    Explora, busca y recibe alertas de miles de datasets públicos 
+                    directamente en Telegram. Información actualizada al instante.
+                </p>
+                <div class="hero-buttons">
+                    <a href="https://t.me/cyl_asistente_bot" class="btn-primary" target="_blank" rel="noopener">
+                        <span class="btn-icon">📱</span>
+                        Abrir en Telegram
+                    </a>
+                    <a href="#funciones" class="btn-secondary">
+                        <span class="btn-icon">📖</span>
+                        Ver Funciones
+                    </a>
+                </div>
+            </div>
+            <div class="hero-visual fade-in-up delay-200">
+                <div class="phone-mockup">
+                    <div class="phone-screen">
+                        <div class="chat-interface">
+                            <div class="chat-header">
+                                <div class="chat-avatar">🤖</div>
+                                <div class="chat-info">
+                                    <div class="chat-name">Datos CyL Bot</div>
+                                    <div class="chat-status">en línea</div>
+                                </div>
+                            </div>
+                            <div class="chat-messages">
+                                <div class="message bot-message">
+                                    <div class="message-text">¡Hola! 👋 Soy tu asistente para datos abiertos de Castilla y León</div>
+                                </div>
+                                <div class="message user-message">
+                                    <div class="message-text">/estadisticas</div>
+                                </div>
+                                <div class="message bot-message">
+                                    <div class="message-text">
+                                        📊 <strong>Estadísticas del Portal</strong><br>
+                                        📄 Total datasets: <strong>2,847</strong><br>
+                                        🏷️ Categorías: <strong>23</strong><br>
+                                        🔄 Actualizados hoy: <strong>12</strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <div class="scroll-arrow"></div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="funciones" class="features">
+        <div class="container">
+            <div class="section-header fade-in-up">
+                <h2 class="section-title">Funcionalidades Potentes</h2>
+                <p class="section-subtitle">Todo lo que necesitas para trabajar con datos abiertos</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card fade-in-up" data-delay="100">
+                    <div class="feature-icon">🔍</div>
+                    <h3 class="feature-title">Búsqueda Inteligente</h3>
+                    <p class="feature-description">
+                        Encuentra datasets por palabras clave, categorías o temas específicos. 
+                        Resultados precisos y actualizados.
+                    </p>
+                    <div class="feature-demo">
+                        <code>/buscar educación Burgos</code>
+                    </div>
+                </div>
+
+                <div class="feature-card fade-in-up" data-delay="200">
+                    <div class="feature-icon">🔔</div>
+                    <h3 class="feature-title">Alertas Personalizadas</h3>
+                    <p class="feature-description">
+                        Suscríbete a categorías, datasets específicos o palabras clave. 
+                        Recibe notificaciones cuando hay actualizaciones.
+                    </p>
+                    <div class="feature-demo">
+                        <code>/mis_alertas</code>
+                    </div>
+                </div>
+
+                <div class="feature-card fade-in-up" data-delay="300">
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Estadísticas en Tiempo Real</h3>
+                    <p class="feature-description">
+                        Consulta estadísticas del portal, datasets más populares y 
+                        tendencias de actualización.
+                    </p>
+                    <div class="feature-demo">
+                        <code>/estadisticas</code>
+                    </div>
+                </div>
+
+                <div class="feature-card fade-in-up" data-delay="400">
+                    <div class="feature-icon">⭐</div>
+                    <h3 class="feature-title">Favoritos</h3>
+                    <p class="feature-description">
+                        Guarda tus datasets favoritos para acceso rápido. 
+                        Organiza tu biblioteca personal de datos.
+                    </p>
+                    <div class="feature-demo">
+                        <code>/favoritos</code>
+                    </div>
+                </div>
+
+                <div class="feature-card fade-in-up" data-delay="500">
+                    <div class="feature-icon">📅</div>
+                    <h3 class="feature-title">Datos Recientes</h3>
+                    <p class="feature-description">
+                        Descubre los datasets más recientemente publicados 
+                        o actualizados en el portal.
+                    </p>
+                    <div class="feature-demo">
+                        <code>/recientes</code>
+                    </div>
+                </div>
+
+                <div class="feature-card fade-in-up" data-delay="600">
+                    <div class="feature-icon">🏷️</div>
+                    <h3 class="feature-title">Explorar por Categorías</h3>
+                    <p class="feature-description">
+                        Navega por todas las categorías disponibles: salud, 
+                        educación, economía, transporte y muchas más.
+                    </p>
+                    <div class="feature-demo">
+                        <code>/start → Categorías</code>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section id="estadisticas" class="stats">
+        <div class="container">
+            <div class="section-header fade-in-up">
+                <h2 class="section-title">Datos en Números</h2>
+                <p class="section-subtitle">El impacto de los datos abiertos de Castilla y León</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card fade-in-up" data-delay="100">
+                    <div class="stat-number" data-count="2847">0</div>
+                    <div class="stat-label">Datasets Disponibles</div>
+                </div>
+                <div class="stat-card fade-in-up" data-delay="200">
+                    <div class="stat-number" data-count="23">0</div>
+                    <div class="stat-label">Categorías</div>
+                </div>
+                <div class="stat-card fade-in-up" data-delay="300">
+                    <div class="stat-number" data-count="156">0</div>
+                    <div class="stat-label">Usuarios Activos</div>
+                </div>
+                <div class="stat-card fade-in-up" data-delay="400">
+                    <div class="stat-number" data-count="1240">0</div>
+                    <div class="stat-label">Búsquedas Mensuales</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content fade-in-up">
+                <h2 class="cta-title">¿Listo para explorar los datos?</h2>
+                <p class="cta-subtitle">
+                    Únete a cientos de usuarios que ya utilizan nuestro bot para 
+                    acceder a información pública de forma inteligente y eficiente.
+                </p>
+                <a href="https://t.me/cyl_asistente_bot" class="btn-primary large" target="_blank" rel="noopener">
+                    <span class="btn-icon">🚀</span>
+                    Comenzar Ahora
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="contacto" class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <span class="logo-icon">🤖</span>
+                        <span class="logo-text">Datos CyL Bot</span>
+                    </div>
+                    <p class="footer-description">
+                        Tu asistente inteligente para datos abiertos de Castilla y León. 
+                        Desarrollado con ❤️ para la comunidad.
+                    </p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3 class="footer-title">Enlaces Útiles</h3>
+                    <ul class="footer-links">
+                        <li><a href="https://analisis.datosabiertos.jcyl.es" target="_blank" rel="noopener">Portal Datos Abiertos</a></li>
+                        <li><a href="https://transparencia.jcyl.es" target="_blank" rel="noopener">Portal Transparencia</a></li>
+                        <li><a href="https://www.jcyl.es" target="_blank" rel="noopener">Junta de Castilla y León</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h3 class="footer-title">Comandos Principales</h3>
+                    <ul class="footer-links">
+                        <li><code>/start</code> - Menú principal</li>
+                        <li><code>/buscar</code> - Buscar datasets</li>
+                        <li><code>/estadisticas</code> - Ver estadísticas</li>
+                        <li><code>/help</code> - Ayuda completa</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-copy">
+                    <p>&copy; 2024 Datos CyL Bot. Proyecto de código abierto.</p>
+                </div>
+                <div class="footer-social">
+                    <a href="https://t.me/cyl_asistente_bot" class="social-link" target="_blank" rel="noopener">
+                        <span>📱 Telegram</span>
+                    </a>
+                    <a href="https://github.com" class="social-link" target="_blank" rel="noopener">
+                        <span>🐙 GitHub</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

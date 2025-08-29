@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/sitemap.xml
