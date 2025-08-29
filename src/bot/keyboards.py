@@ -16,29 +16,65 @@ def create_themes_keyboard(themes: List[Facet], page: int = 0, per_page: int = 1
     end_idx = start_idx + per_page
     page_themes = themes[start_idx:end_idx]
     
-    # Emoji mapping for different themes/categories
+    # Emoji mapping for different themes/categories - each category has a unique, intuitive emoji
     theme_emojis = {
         'salud': '🏥',
         'sector público': '🏛️', 
         'cultura y ocio': '🎭',
+        'cultura': '🎨',
+        'ocio': '🎪',
         'medio rural y pesca': '🚜',
+        'medio rural': '🌾',
+        'pesca': '🐟',
         'empleo': '💼',
         'sociedad y bienestar': '🤝',
         'economía': '💰',
-        'medio ambiente': '🌿',
+        'medio ambiente': '🌱',
         'energía': '⚡',
-        'turismo': '✈️',
+        'turismo': '🗽',
         'transporte': '🚌',
-        'educación': '📚',
+        'educación': '🎓',
         'vivienda': '🏠',
         'comercio': '🛒',
         'industria': '🏭',
         'territorio': '🗺️',
-        'información': '📄',
+        'información': '💾',  # Changed from 📊 to avoid conflicts
         'seguridad': '🛡️',
         'deportes': '⚽',
         'tecnología': '💻',
-        'ciencia': '🔬'
+        'ciencia': '🔬',
+        'agricultura': '🌽',
+        'ganadería': '🐄',
+        'ganadería y pesca': '🐮',
+        'forestales': '🌲',
+        'montes': '🌳',
+        'minería': '⛏️',
+        'construcción': '🏗️',
+        'urbanismo e infraestructuras': '🏘️',
+        'urbanismo': '🏙️',
+        'infraestructuras': '🛣️',
+        'servicios': '🔧',
+        'sector privado': '🏢',
+        'administración': '📋',
+        'justicia': '⚖️',
+        'hacienda': '💳',
+        'demografía': '👥',
+        'estadística': '📊',
+        'planificación': '📐',
+        'comunicaciones': '📡',
+        'investigación': '🔍',
+        'innovación': '💡',
+        'patrimonio': '🏰',
+        'cooperación': '🤲',
+        'desarrollo': '📈',
+        'ordenación': '📑',
+        'recursos': '⚙️',
+        'agua': '💧',
+        'residuos': '♻️',
+        'contaminación': '🌫️',
+        'clima': '🌤️',
+        'biodiversidad': '🦋',
+        'protección': '🔒'
     }
     
     for theme in page_themes:
@@ -69,13 +105,17 @@ def create_themes_keyboard(themes: List[Facet], page: int = 0, per_page: int = 1
     if nav_buttons:
         keyboard.append(nav_buttons)
     
-    # Add quick access buttons
+    # Add quick access buttons with better organization
     keyboard.append([
-        InlineKeyboardButton("🔍 Buscar", callback_data="start_search"),
+        InlineKeyboardButton("🔍 Búsqueda avanzada", callback_data="start_search"),
     ])
     keyboard.append([
-        InlineKeyboardButton("🕒 Recientes", callback_data="recent_datasets"),
+        InlineKeyboardButton("🕒 Datos recientes", callback_data="recent_datasets"),
         InlineKeyboardButton("📈 Estadísticas", callback_data="stats")
+    ])
+    keyboard.append([
+        InlineKeyboardButton("🔔 Mis alertas", callback_data="mis_alertas"),
+        InlineKeyboardButton("❓ Ayuda", callback_data="help")
     ])
     
     return InlineKeyboardMarkup(keyboard)
@@ -339,7 +379,8 @@ def create_search_results_keyboard(datasets: List[Dataset], search_term: str, pa
         row = []
         for j in range(i, min(i + 3, len(datasets))):
             dataset = datasets[j]
-            dataset_number = j + 1
+            # Calculate global dataset number based on page and position
+            dataset_number = (page * per_page) + j + 1
             callback_data = f"search_num:{search_term}:{j}:{dataset.dataset_id}"
             
             # Use short ID if callback data is too long
@@ -363,7 +404,8 @@ def create_search_results_keyboard(datasets: List[Dataset], search_term: str, pa
         nav_buttons.append(InlineKeyboardButton("⬅️ Anterior", callback_data=prev_callback))
     
     total_pages = (total_count + per_page - 1) // per_page
-    if page < total_pages - 1:
+    # Only show next button if we have more pages AND current page has full results
+    if page < total_pages - 1 and len(datasets) == per_page:
         next_callback = f"search_page:{search_term}:{page+1}"
         if len(next_callback.encode()) > 60:
             short_id = callback_mapper.get_short_id(next_callback)

@@ -244,8 +244,9 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         keyboard = create_themes_keyboard(themes, per_page=settings.themes_per_page)
         
         message = (
-            "🏛️ <b>Enciclopedia JCyL - Datos Abiertos</b>\n\n"
-            "¡Bienvenido al explorador oficial de datos abiertos de Castilla y León!\n\n"
+            "🏛️ <b>Portal de Datos Abiertos - Junta de Castilla y León</b>\n\n"
+            "¡Bienvenido al explorador oficial de datos abiertos de Castilla y León!\n"
+            "🌍 Acceso libre y transparente a la información pública oficial.\n\n"
             
             "🎯 <b>¿Qué puedes hacer aquí?</b>\n"
             "• Explorar más de 400 datasets organizados por categorías\n"
@@ -259,13 +260,14 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             "/help - Mostrar esta ayuda\n\n"
             
             "🚀 <b>¡Comienza explorando!</b>\n"
-            "Selecciona una categoría de las siguientes para descubrir datasets:"
+            "👇 Selecciona una categoría para descubrir datos oficiales de Castilla y León:"
         )
         
         await update.message.reply_text(
             message,
             parse_mode="HTML",
-            reply_markup=keyboard
+            reply_markup=keyboard,
+            disable_web_page_preview=True
         )
         
     except Exception as e:
@@ -357,6 +359,8 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             await handle_recent_datasets_callback(query, context)
         elif data == "stats":
             await handle_stats_callback(query, context)
+        elif data == "help":
+            await show_help_callback(query, context)
         elif data.startswith("search_page:"):
             parts = data.split(":", 2)
             search_term, page = parts[1], int(parts[2])
@@ -399,10 +403,12 @@ async def show_themes(query, context, page: int = 0) -> None:
         
         keyboard = create_themes_keyboard(themes, page, settings.themes_per_page)
         
+        total_pages = (len(themes) + settings.themes_per_page - 1) // settings.themes_per_page
         message = (
-            "🏛️ *Enciclopedia JCyL - Datos Abiertos*\n\n"
-            f"📊 Categorías disponibles (página {page + 1}):\n"
-            f"Total: {len(themes)} categorías"
+            "🏛️ *Portal de Datos Abiertos - Junta de Castilla y León*\n\n"
+            f"🔍 **Explora por categorías** (página {page + 1} de {total_pages})\n"
+            f"📊 **Total disponible:** {len(themes)} categorías temáticas\n\n"
+            f"💡 *Consejo: Cada número entre paréntesis indica la cantidad de datasets disponibles*"
         )
         
         await query.edit_message_text(
@@ -956,10 +962,10 @@ async def handle_stats_callback(query, context) -> None:
         top_themes = sorted(themes, key=lambda x: x.count, reverse=True)[:5]
         
         message = (
-            f"📈 **Estadísticas de Datos Abiertos**\n\n"
-            f"📊 **Total de datasets:** {total_datasets}\n"
-            f"🏷️ **Categorías disponibles:** {len(themes)}\n\n"
-            f"🔝 **Top 5 Categorías:**\n"
+            f"📈 <b>Estadísticas de Datos Abiertos</b>\n\n"
+            f"📊 <b>Total de datasets:</b> {total_datasets}\n"
+            f"🏷️ <b>Categorías disponibles:</b> {len(themes)}\n\n"
+            f"🔝 <b>Top 5 Categorías:</b>\n"
         )
         
         for i, theme in enumerate(top_themes, 1):
@@ -989,20 +995,28 @@ async def handle_search_page(query, context, search_term: str, page: int) -> Non
         datasets, total_count = await api_client.get_datasets(
             search=search_term,
             limit=settings.datasets_per_page,
-            offset=page * settings.datasets_per_page
+            offset=page * settings.datasets_per_page,
+            order_by="-metadata_processed"  # Ensure consistent ordering
         )
         
         if not datasets:
-            await query.edit_message_text(f"❌ No se encontraron más resultados para '{search_term}'.")
+            if page == 0:
+                await query.edit_message_text(f"❌ No se encontraron resultados para '{search_term}'.")
+            else:
+                await query.edit_message_text(
+                    f"❌ No hay más resultados en la página {page + 1} para '{search_term}'.\n\n"
+                    f"💡 Intenta volver a la página anterior."
+                )
             return
         
         keyboard = create_search_results_keyboard(datasets, search_term, page, settings.datasets_per_page, total_count)
         
         total_pages = (total_count + settings.datasets_per_page - 1) // settings.datasets_per_page
         message = (
-            f"🔍 **Resultados: '{search_term}'**\n\n"
-            f"📊 Total: {total_count} datasets encontrados\n"
-            f"📄 Página {page + 1} de {total_pages} ({len(datasets)} datasets):"
+            f"🔍 <b>Resultados: '{search_term}'</b>\n\n"
+            f"📊 <b>Total:</b> {total_count} datasets encontrados\n"
+            f"📄 <b>Página:</b> {page + 1} de {total_pages} ({len(datasets)} datasets)\n\n"
+            f"💡 <i>Haz clic en el número para ver detalles del dataset.</i>"
         )
         
         await query.edit_message_text(
@@ -1033,10 +1047,10 @@ async def dataset_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         top_themes = sorted(themes, key=lambda x: x.count, reverse=True)[:5]
         
         message = (
-            f"📈 **Estadísticas de Datos Abiertos**\n\n"
-            f"📊 **Total de datasets:** {total_datasets}\n"
-            f"🏷️ **Categorías disponibles:** {len(themes)}\n\n"
-            f"🔝 **Top 5 Categorías:**\n"
+            f"📈 <b>Estadísticas de Datos Abiertos</b>\n\n"
+            f"📊 <b>Total de datasets:</b> {total_datasets}\n"
+            f"🏷️ <b>Categorías disponibles:</b> {len(themes)}\n\n"
+            f"🔝 <b>Top 5 Categorías:</b>\n"
         )
         
         for i, theme in enumerate(top_themes, 1):
@@ -1236,7 +1250,7 @@ async def handle_refresh_bookmarks_callback(query, context) -> None:
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """Handle /help command."""
     message = (
-        "🤖 <b>Ayuda - Enciclopedia JCyL</b>\n\n"
+        "🤖 <b>Ayuda - Portal de Datos Abiertos</b>\n\n"
         
         "🏛️ <b>Sobre este bot</b>\n"
         "Bot oficial para explorar los datos abiertos de Castilla y León. "
@@ -1270,10 +1284,66 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "• Recibe notificaciones de nuevos datos\n"
         "• Gestiona suscripciones con /mis_alertas\n\n"
         
+        "👨‍💻 <b>Créditos:</b>\n"
+        "Desarrollado por: <b>Víctor Viloria Vázquez</b>\n"
+        "GitHub: @ComputingVictor\n\n"
+        
         "💡 ¡Usa /start para comenzar a explorar!"
     )
     
     await update.message.reply_text(message, parse_mode="HTML")
+
+
+async def show_help_callback(query, context) -> None:
+    """Handle help callback from inline keyboard."""
+    message = (
+        "🤖 <b>Ayuda - Portal de Datos Abiertos</b>\n\n"
+        
+        "🏛️ <b>Sobre este bot</b>\n"
+        "Bot oficial para explorar los datos abiertos de Castilla y León. "
+        "Accede a más de 400 datasets actualizados desde la plataforma oficial.\n\n"
+        
+        "📋 <b>Comandos principales:</b>\n"
+        "🏠 /start - Mostrar categorías y comenzar exploración\n"
+        "🔍 /buscar [término] - Buscar datasets por texto\n"
+        "🕒 /recientes - Ver datasets actualizados recientemente\n"
+        "📈 /estadisticas - Ver estadísticas generales\n"
+        "⭐ /favoritos - Ver tus datasets favoritos guardados\n"
+        "🔔 /mis_alertas - Ver y gestionar tus suscripciones\n"
+        "❓ /help - Mostrar esta ayuda\n\n"
+        
+        "🎯 <b>Cómo usar el bot:</b>\n"
+        "1️⃣ Selecciona una categoría (Salud, Educación, etc.)\n"
+        "2️⃣ Elige 'Ver datasets' o refina por palabra clave\n"
+        "3️⃣ Explora datasets y descarga datos directamente\n"
+        "4️⃣ Suscríbete para recibir alertas de actualizaciones\n\n"
+        
+        "📊 <b>Formatos disponibles:</b>\n"
+        "• CSV - Datos tabulares\n"
+        "• XLSX - Hojas de cálculo Excel\n"
+        "• JSON - Datos estructurados\n"
+        "• GeoJSON - Datos geográficos\n"
+        "• PDF/ZIP - Documentos adjuntos\n\n"
+        
+        "🔔 <b>Sistema de alertas:</b>\n"
+        "• Suscríbete a categorías completas\n"
+        "• Suscríbete a datasets específicos\n"
+        "• Recibe notificaciones de nuevos datos\n"
+        "• Gestiona suscripciones con /mis_alertas\n\n"
+        
+        "👨‍💻 <b>Créditos:</b>\n"
+        "Desarrollado por: <b>Víctor Viloria Vázquez</b>\n"
+        "GitHub: @ComputingVictor\n\n"
+        
+        "💡 ¡Usa /start para comenzar a explorar!"
+    )
+    
+    from .keyboards import InlineKeyboardMarkup, InlineKeyboardButton
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🏠 Volver al inicio", callback_data="start")]
+    ])
+    
+    await query.edit_message_text(message, parse_mode="HTML", reply_markup=keyboard)
 
 
 async def handle_dataset_preview(query, context, dataset_id: str) -> None:
@@ -1435,10 +1505,12 @@ async def handle_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE)
         await update.message.reply_text(f"🔍 Buscando '{search_term}'...")
         
         # Use the global API client instance to maintain cache consistency
+        # Use consistent sorting to ensure stable pagination
         datasets, total_count = await api_client.get_datasets(
             search=search_term, 
             limit=settings.datasets_per_page,
-            offset=0
+            offset=0,
+            order_by="-metadata_processed"  # Ensure consistent ordering
         )
         
         if not datasets:
@@ -1453,31 +1525,19 @@ async def handle_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE)
             await update.message.reply_text(no_results_message)
             return
         
-        # Show search results with numbered interface
-        search_list = []
-        for i, dataset in enumerate(datasets, 1):
-            title = clean_text_for_markdown(dataset.title) if dataset.title else "Sin título"
-            # Show update date if available for context
-            if dataset.metadata_processed and dataset.metadata_processed != "Dato no disponible":
-                friendly_date = format_user_friendly_date(dataset.metadata_processed)
-                search_list.append(f"{i}. {title}\n   _Actualizado: {friendly_date}_")
-            else:
-                search_list.append(f"{i}. {title}")
-        
         keyboard = create_search_results_keyboard(datasets, search_term, 0, settings.datasets_per_page, total_count)
-        clean_search_term = clean_text_for_markdown(search_term)
         
+        total_pages = (total_count + settings.datasets_per_page - 1) // settings.datasets_per_page
         message = (
-            f"🔍 *Resultados para: '{clean_search_term}'*\n\n"
-            f"📊 Total encontrado: {total_count} datasets\n"
-            f"📄 Mostrando primeros {len(datasets)} resultados\n\n"
-            f"**Datasets encontrados:**\n\n" + "\n\n".join(search_list) + "\n\n"
-            f"_Haz clic en el número para ver detalles._"
+            f"🔍 <b>Resultados: '{search_term}'</b>\n\n"
+            f"📊 <b>Total:</b> {total_count} datasets encontrados\n"
+            f"📄 <b>Página:</b> 1 de {total_pages} ({len(datasets)} datasets)\n\n"
+            f"💡 <i>Haz clic en el número para ver detalles del dataset.</i>"
         )
         
         await update.message.reply_text(
             message,
-            parse_mode="Markdown",
+            parse_mode="HTML",
             reply_markup=keyboard
         )
         
