@@ -245,24 +245,26 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         
         keyboard = create_themes_keyboard(themes, per_page=settings.themes_per_page)
         
+        # Get popular categories to show in welcome message
+        popular_themes = sorted(themes, key=lambda x: x.count, reverse=True)[:3]
+        popular_examples = ", ".join([theme.name for theme in popular_themes])
+        
         message = (
             "🏛️ <b>Portal de Datos Abiertos - Junta de Castilla y León</b>\n\n"
             "¡Bienvenido al explorador oficial de datos abiertos de Castilla y León!\n"
             "🌍 Acceso libre y transparente a la información pública oficial.\n\n"
             
-            "🎯 <b>¿Qué puedes hacer aquí?</b>\n"
-            "• Explorar más de 400 datasets organizados por categorías\n"
-            "• Descargar datos en CSV, XLSX, JSON, GeoJSON y más formatos\n"
-            "• Suscribirte a alertas de nuevos datos o actualizaciones\n"
-            "• Acceder a documentos adjuntos (PDF, ZIP, etc.)\n\n"
+            f"🔥 <b>Datos más consultados:</b> {popular_examples}\n"
+            f"📊 <b>Total disponible:</b> {len(themes)} categorías con +400 datasets\n\n"
             
-            "📋 <b>Comandos disponibles:</b>\n"
-            "/start - Mostrar categorías principales\n"
-            "/mis_alertas - Gestionar suscripciones\n"
-            "/help - Mostrar esta ayuda\n\n"
+            "🎯 <b>¿Qué puedes hacer aquí?</b>\n"
+            "• Explorar datasets organizados por categorías\n"
+            "• Descargar datos en múltiples formatos (CSV, XLSX, JSON...)\n"
+            "• Suscribirte a alertas de actualizaciones\n"
+            "• Acceder a documentos adjuntos oficiales\n\n"
             
             "🚀 <b>¡Comienza explorando!</b>\n"
-            "👇 Selecciona una categoría para descubrir datos oficiales de Castilla y León:"
+            "👇 Selecciona una categoría para descubrir datos oficiales:"
         )
         
         await update.message.reply_text(
@@ -428,11 +430,17 @@ async def show_themes(query, context, page: int = 0) -> None:
         keyboard = create_themes_keyboard(themes, page, settings.themes_per_page)
         
         total_pages = (len(themes) + settings.themes_per_page - 1) // settings.themes_per_page
+        # Get some popular categories for the message
+        popular_themes = sorted(themes, key=lambda x: x.count, reverse=True)[:3]
+        popular_list = ", ".join([f"{theme.name} ({theme.count})" for theme in popular_themes])
+        
         message = (
-            "🏛️ *Portal de Datos Abiertos - Junta de Castilla y León*\n\n"
-            f"🔍 **Explora por categorías** (página {page + 1} de {total_pages})\n"
-            f"📊 **Total disponible:** {len(themes)} categorías temáticas\n\n"
-            f"💡 *Consejo: Cada número entre paréntesis indica la cantidad de datasets disponibles*"
+            "🏛️ *¡Bienvenido al Portal de Datos Abiertos de Castilla y León!*\n\n"
+            f"🎯 **¿Qué datos necesitas?**\n"
+            f"Explora {len(themes)} categorías con información oficial actualizada\n\n"
+            f"🔥 **Más populares:** {popular_list}\n\n"
+            f"👇 **Selecciona una categoría** (página {page + 1} de {total_pages})\n"
+            f"💡 Los números indican cuántos datasets hay disponibles"
         )
         
         await query.edit_message_text(
