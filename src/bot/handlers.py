@@ -695,12 +695,19 @@ async def my_subscriptions_command(update: Update, context: ContextTypes.DEFAULT
         subscriptions = db_manager.get_user_subscriptions(user_db_id)
         
         if not subscriptions:
+            keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
+            ])
             message = (
                 "📭 *Mis alertas*\n\n"
                 "No tienes suscripciones activas.\n\n"
-                "Usa /start para explorar y suscribirte a categorías o datasets."
+                "Usa el botón de abajo para explorar y suscribirte a categorías o datasets."
             )
-            await update.message.reply_text(message, parse_mode="Markdown")
+            await update.message.reply_text(
+                message, 
+                parse_mode="Markdown",
+                reply_markup=keyboard
+            )
             return
         
         # Format subscriptions for keyboard
@@ -736,9 +743,13 @@ async def show_my_subscriptions(query, context) -> None:
         subscriptions = db_manager.get_user_subscriptions(user_db_id)
         
         if not subscriptions:
+            keyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
+            ])
             await query.edit_message_text(
                 "📭 No tienes suscripciones activas.\n\n"
-                "Usa /start para explorar y suscribirte."
+                "Usa el botón de abajo para explorar y suscribirte.",
+                reply_markup=keyboard
             )
             return
         
