@@ -78,6 +78,11 @@ def create_themes_keyboard(themes: List[Facet], page: int = 0, per_page: int = 1
     }
     
     for theme in page_themes:
+        # Skip categories we want to hide
+        theme_lower = theme.name.lower()
+        if theme_lower == 'urbanismo e infraestructura':  # Skip this specific category
+            continue
+            
         callback_data = f"theme:{theme.name}"
         # Use short ID if callback data is too long
         if len(callback_data.encode()) > 60:  # Leave some margin
@@ -85,7 +90,6 @@ def create_themes_keyboard(themes: List[Facet], page: int = 0, per_page: int = 1
             callback_data = f"s:{short_id}"
         
         # Get appropriate emoji for theme
-        theme_lower = theme.name.lower()
         emoji = theme_emojis.get(theme_lower, '📊')  # Default to 📊 if no specific emoji
         
         keyboard.append([
