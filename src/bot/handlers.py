@@ -253,9 +253,10 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         message = (
             "🏛️ <b>Portal de Datos Abiertos - Junta de Castilla y León</b>\n\n"
             "¡Bienvenido al explorador oficial de datos abiertos de Castilla y León!\n"
+            
             "🌍 Acceso libre y transparente a la información pública oficial.\n\n"
             
-            f"🔥 <b>Datos más consultados:</b> {popular_examples}\n"
+            f"🔥 <b>Datos más consultados:</b> {popular_examples}\n\n"
             f"📊 <b>Total disponible:</b> {len(themes)} categorías con +400 datasets\n\n"
             
             "🎯 <b>¿Qué puedes hacer aquí?</b>\n"
@@ -265,7 +266,8 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             "• Acceder a documentos adjuntos oficiales\n\n"
             
             "🚀 <b>¡Comienza explorando!</b>\n"
-            "👇 Selecciona una categoría para descubrir datos oficiales:"
+
+            "👇 Selecciona una categoría para descubrir datos oficiales:\n"
         )
         
         await update.message.reply_text(
@@ -443,7 +445,7 @@ async def show_themes(query, context, page: int = 0) -> None:
             f"Explora {len(themes)} categorías con información oficial actualizada\n\n"
             f"🔥 **Más populares:** {popular_list}\n\n"
             f"👇 **Selecciona una categoría** (página {page + 1} de {total_pages})\n"
-            f"💡 Los números indican cuántos datasets hay disponibles"
+            f"💡 Los números indican cuántos datasets hay disponibles\n"
         )
         
         await query.edit_message_text(
@@ -1394,11 +1396,11 @@ async def search_datasets(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         clean_search_term = clean_text_for_markdown(search_term)
         
         message = (
-            f"🔍 **Resultados: '{clean_search_term}'**\n\n"
-            f"📊 Total: {total_count} datasets encontrados\n"
-            f"📄 Página 1 de {(total_count + settings.datasets_per_page - 1) // settings.datasets_per_page} ({len(datasets)} datasets)\n\n"
-            f"**Datasets encontrados:**\n" + "\n\n".join(search_results) + "\n\n"
-            f"_Haz clic en el número correspondiente para ver detalles._"
+            f"🔍 <b>Resultados: '{clean_search_term}'</b>\n\n"
+            f"📊 <b>Total:</b> {total_count} datasets encontrados\n"
+            f"📄 <b>Página:</b> 1 de {(total_count + settings.datasets_per_page - 1) // settings.datasets_per_page} ({len(datasets)} datasets)\n\n"
+            f"<b>Datasets encontrados:</b>\n" + "\n\n".join(search_results) + "\n\n"
+            f"💡 <i>Haz clic en el número correspondiente para ver detalles.</i>"
         )
         
         await update.message.reply_text(
@@ -1570,11 +1572,20 @@ async def handle_search_page(query, context, search_term: str, page: int) -> Non
         
         keyboard = create_search_results_keyboard(datasets, search_term, page, settings.datasets_per_page, total_count)
         
+        # Show all search results with full titles
+        search_results = []
+        for i, dataset in enumerate(datasets, 1):
+            title = clean_text_for_markdown(dataset.title) if dataset.title else "Sin título"
+            # Don't truncate - show full title
+            search_results.append(f"{i}. {title}")
+        
+        clean_search_term = clean_text_for_markdown(search_term)
         total_pages = (total_count + settings.datasets_per_page - 1) // settings.datasets_per_page
         message = (
-            f"🔍 <b>Resultados: '{search_term}'</b>\n\n"
+            f"🔍 <b>Resultados: '{clean_search_term}'</b>\n\n"
             f"📊 <b>Total:</b> {total_count} datasets encontrados\n"
             f"📄 <b>Página:</b> {page + 1} de {total_pages} ({len(datasets)} datasets)\n\n"
+            f"<b>Datasets encontrados:</b>\n" + "\n\n".join(search_results) + "\n\n"
             f"💡 <i>Haz clic en el número para ver detalles del dataset.</i>"
         )
         
@@ -2090,11 +2101,20 @@ async def handle_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE)
         
         keyboard = create_search_results_keyboard(datasets, search_term, 0, settings.datasets_per_page, total_count)
         
+        # Show all search results with full titles
+        search_results = []
+        for i, dataset in enumerate(datasets, 1):
+            title = clean_text_for_markdown(dataset.title) if dataset.title else "Sin título"
+            # Don't truncate - show full title
+            search_results.append(f"{i}. {title}")
+        
+        clean_search_term = clean_text_for_markdown(search_term)
         total_pages = (total_count + settings.datasets_per_page - 1) // settings.datasets_per_page
         message = (
-            f"🔍 <b>Resultados: '{search_term}'</b>\n\n"
+            f"🔍 <b>Resultados: '{clean_search_term}'</b>\n\n"
             f"📊 <b>Total:</b> {total_count} datasets encontrados\n"
             f"📄 <b>Página:</b> 1 de {total_pages} ({len(datasets)} datasets)\n\n"
+            f"<b>Datasets encontrados:</b>\n" + "\n\n".join(search_results) + "\n\n"
             f"💡 <i>Haz clic en el número para ver detalles del dataset.</i>"
         )
         
