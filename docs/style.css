@@ -979,7 +979,19 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .phone-mockup {
-        display: none;
+        width: 180px;
+        height: 360px;
+    }
+    
+    .hero-content {
+        gap: 30px;
+    }
+    
+    .hero-visual {
+        min-height: 400px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }
 
