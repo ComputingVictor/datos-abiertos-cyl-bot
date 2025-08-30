@@ -1,7 +1,7 @@
-# GitHub Pages configuration for Datos CyL Bot
+# GitHub Pages configuration for Datos Abiertos CyL Bot
 title: "Bot Datos Abiertos CyL"
 description: "Tu asistente inteligente para datos abiertos de Castilla y León"
-author: "Datos CyL Bot Team"
+author: "Víctor Viloria Vázquez"
 url: "https://computingvictor.github.io"
 baseurl: "/DATOS-ABIERTOS-CYL-BOT"
 
