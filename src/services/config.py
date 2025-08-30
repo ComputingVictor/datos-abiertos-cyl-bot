@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     
     # FastAPI
     fastapi_host: str = Field("0.0.0.0", env="FASTAPI_HOST")
-    fastapi_port: int = Field(8000, env="FASTAPI_PORT")
+    fastapi_port: int = Field(int(os.getenv("PORT", "8000")), env="FASTAPI_PORT")
     fastapi_debug: bool = Field(False, env="FASTAPI_DEBUG")
     
     # Database
