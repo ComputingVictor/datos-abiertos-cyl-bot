@@ -795,25 +795,70 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
+/* iPad en orientación vertical - más específico */
+@media (max-width: 834px) and (min-width: 769px) and (orientation: portrait) {
+    .phone-mockup {
+        width: 260px;
+        height: 520px;
+    }
+    
+    .hero-visual {
+        min-height: 580px;
+        padding: 20px 0;
+    }
+    
+    .hero {
+        padding: 100px 0 60px;
+        min-height: 100vh;
+    }
+    
+    .hero-content {
+        gap: 40px;
+    }
+}
+
+/* iPad Pro y iPad Air - orientación vertical */
+@media (max-width: 1024px) and (min-width: 768px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio: 2) {
+    .phone-mockup {
+        width: 280px;
+        height: 560px;
+    }
+    
+    .hero-visual {
+        min-height: 620px;
+        padding: 30px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .hero {
+        padding: 120px 0 80px;
+        min-height: 100vh;
+    }
+}
+
 @media (max-width: 768px) {
     .nav-menu {
         position: fixed;
-        left: -100%;
-        top: 64px;
+        top: -100%;
+        left: 0;
+        right: 0;
         flex-direction: column;
         background-color: var(--background-primary);
         backdrop-filter: blur(20px);
         -webkit-backdrop-filter: blur(20px);
         width: 100%;
         text-align: center;
-        transition: 0.3s;
+        transition: top 0.3s ease-in-out;
         padding: 40px 0;
         box-shadow: var(--shadow-light);
-        border-right: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--border-color);
+        z-index: 999;
     }
 
     .nav-menu.active {
-        left: 0;
+        top: 64px;
     }
 
     .nav-toggle {
