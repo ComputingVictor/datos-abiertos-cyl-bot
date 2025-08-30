@@ -326,7 +326,7 @@ class JCYLAPIClient:
                                 if not matches:
                                     continue
                             
-                            # Search filtering
+                            # Search filtering - Enhanced search with synonyms
                             if search:
                                 search_lower = search.lower()
                                 searchable_text = " ".join([
@@ -337,8 +337,55 @@ class JCYLAPIClient:
                                     dataset.publisher.lower() if dataset.publisher else ""
                                 ])
                                 
-                                search_terms = search_lower.split()
-                                if not any(term in searchable_text for term in search_terms):
+                                # Synonym/related terms mapping for better search
+                                synonym_map = {
+                                    'clinica': ['salud', 'medicina', 'hospital', 'sanitario', 'medico'],
+                                    'clínica': ['salud', 'medicina', 'hospital', 'sanitario', 'medico'],
+                                    'hospital': ['salud', 'medicina', 'clinica', 'sanitario', 'medico'],
+                                    'medicina': ['salud', 'clinica', 'hospital', 'sanitario', 'medico'],
+                                    'medico': ['salud', 'medicina', 'clinica', 'hospital', 'sanitario'],
+                                    'sanitario': ['salud', 'medicina', 'clinica', 'hospital', 'medico'],
+                                    'escuela': ['educacion', 'educativo', 'enseñanza', 'colegio', 'instituto'],
+                                    'colegio': ['educacion', 'educativo', 'enseñanza', 'escuela', 'instituto'],
+                                    'universidad': ['educacion', 'educativo', 'enseñanza', 'universitario'],
+                                    'trabajo': ['empleo', 'laboral', 'ocupacion', 'profesional'],
+                                    'empleo': ['trabajo', 'laboral', 'ocupacion', 'profesional'],
+                                    'transporte': ['movilidad', 'vehiculo', 'autobus', 'tren', 'carretera'],
+                                    'economia': ['economico', 'financiero', 'presupuesto', 'gasto', 'inversion'],
+                                    'turismo': ['turistico', 'hotel', 'alojamiento', 'visitante']
+                                }
+                                
+                                # Get all search terms including synonyms
+                                all_search_terms = search_lower.split()
+                                for term in search_lower.split():
+                                    if term in synonym_map:
+                                        all_search_terms.extend(synonym_map[term])
+                                
+                                found_match = False
+                                
+                                # 1. Check for exact phrase match (highest priority)
+                                if search_lower in searchable_text:
+                                    found_match = True
+                                # 2. Check if all original terms are present (high priority)  
+                                elif all(term in searchable_text for term in search_lower.split()):
+                                    found_match = True
+                                # 3. Check if any original term is present (medium priority)
+                                elif any(term in searchable_text for term in search_lower.split()):
+                                    found_match = True
+                                # 4. Check synonyms (medium-low priority)
+                                elif any(term in searchable_text for term in all_search_terms):
+                                    found_match = True
+                                # 5. Check for partial word matches (lowest priority)
+                                else:
+                                    for term in all_search_terms:
+                                        if len(term) >= 3:  # Only for terms 3+ chars
+                                            # Check if term is part of any word in searchable text
+                                            words = searchable_text.split()
+                                            if any(term in word for word in words):
+                                                found_match = True
+                                                break
+                                
+                                if not found_match:
                                     continue
                             
                             batch_matching.append(dataset)
