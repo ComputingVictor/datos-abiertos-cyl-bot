@@ -358,13 +358,13 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
                 [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
             ])
             await query.edit_message_text(
-                "🔍 **Búsqueda de Datasets**\n\n"
+                "🔍 <b>Búsqueda de Datasets</b>\n\n"
                 "Para buscar, usa el comando:\n"
-                "`/buscar [término de búsqueda]`\n\n"
-                "**Ejemplos:**\n"
-                "• `/buscar covid`\n"
-                "• `/buscar población`\n"
-                "• `/buscar salud castilla`",
+                "<code>/buscar [término de búsqueda]</code>\n\n"
+                "<b>Ejemplos:</b>\n"
+                "• <code>/buscar covid</code>\n"
+                "• <code>/buscar población</code>\n"
+                "• <code>/buscar salud castilla</code>",
                 parse_mode="HTML",
                 reply_markup=keyboard
             )
@@ -1352,13 +1352,13 @@ async def search_datasets(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     """Handle search functionality."""
     if not context.args:
         await update.message.reply_text(
-            "🔍 **Búsqueda de Datasets**\n\n"
+            "🔍 <b>Búsqueda de Datasets</b>\n\n"
             "Para buscar datasets, usa:\n"
-            "`/buscar [término de búsqueda]`\n\n"
-            "**Ejemplos:**\n"
-            "• `/buscar covid`\n"
-            "• `/buscar población castilla`\n"
-            "• `/buscar medio ambiente`",
+            "<code>/buscar [término de búsqueda]</code>\n\n"
+            "<b>Ejemplos:</b>\n"
+            "• <code>/buscar covid</code>\n"
+            "• <code>/buscar población castilla</code>\n"
+            "• <code>/buscar medio ambiente</code>",
             parse_mode="HTML"
         )
         return
