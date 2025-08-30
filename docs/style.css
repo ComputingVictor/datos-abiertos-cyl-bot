@@ -799,33 +799,52 @@ h1, h2, h3, h4, h5, h6 {
     
     .hero-visual {
         min-height: 650px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     
     /* Ajustar el padding del hero para tablets */
     .hero {
         padding: 120px 0 80px;
     }
+    
+    /* Mejorar el contenido del chat en tablets */
+    .chat-messages {
+        padding: 16px;
+        gap: 12px;
+    }
 }
 
 /* iPad en orientación vertical - más específico */
 @media (max-width: 834px) and (min-width: 769px) and (orientation: portrait) {
     .phone-mockup {
-        width: 260px;
-        height: 520px;
+        width: 280px;
+        height: 560px;
     }
     
     .hero-visual {
-        min-height: 580px;
-        padding: 20px 0;
+        min-height: 650px;
+        padding: 30px 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
     
     .hero {
-        padding: 100px 0 60px;
-        min-height: 100vh;
+        padding: 120px 0 80px;
+        min-height: auto;
     }
     
     .hero-content {
-        gap: 40px;
+        gap: 50px;
+    }
+    
+    /* Asegurar que el mockup del chat se vea completo */
+    .chat-messages {
+        flex: 1;
+        padding: 15px;
+        overflow: hidden;
     }
 }
 
@@ -852,8 +871,8 @@ h1, h2, h3, h4, h5, h6 {
 
 @media (max-width: 768px) {
     .nav-menu {
-        position: fixed;
-        top: -100%;
+        position: absolute;
+        top: 100%;
         left: 0;
         right: 0;
         flex-direction: column;
@@ -862,19 +881,29 @@ h1, h2, h3, h4, h5, h6 {
         -webkit-backdrop-filter: blur(20px);
         width: 100%;
         text-align: center;
-        transition: top 0.3s ease-in-out;
-        padding: 40px 0;
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease-in-out;
+        padding: 20px 0;
         box-shadow: var(--shadow-light);
         border-bottom: 1px solid var(--border-color);
         z-index: 999;
     }
 
     .nav-menu.active {
-        top: 64px;
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
     }
 
     .nav-toggle {
         display: flex;
+    }
+    
+    /* El contenedor de navegación debe permitir que el menú se posicione correctamente */
+    .nav-container {
+        position: relative;
     }
 
     .nav-toggle.active .bar:nth-child(2) {
