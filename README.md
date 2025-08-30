@@ -3,7 +3,7 @@
 **Tu asistente inteligente para explorar los datos abiertos de Castilla y León**
 
 [![Telegram](https://img.shields.io/badge/Telegram-@cyl__asistente__bot-blue?logo=telegram)](https://t.me/cyl_asistente_bot)
-[![Website](https://img.shields.io/badge/Website-Visitar-brightgreen?logo=github)](https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/)
+[![Website](https://img.shields.io/badge/Website-Visitar-brightgreen?logo=github)](https://computingvictor.github.io/datos-abiertos-cyl-bot/)
 [![License](https://img.shields.io/badge/License-MIT-yellow?logo=opensourceinitiative)](LICENSE)
 [![Railway](https://img.shields.io/badge/Deploy-Railway-blueviolet?logo=railway)](https://railway.app)
 
@@ -11,7 +11,7 @@
 
 👉 **[Abrir bot en Telegram](https://t.me/cyl_asistente_bot)** 👈
 
-💻 **[Visitar página web oficial](https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/)**
+💻 **[Visitar página web oficial](https://computingvictor.github.io/datos-abiertos-cyl-bot/)**
 
 ---
 
@@ -177,7 +177,7 @@ Búsqueda inteligente con sinónimos y términos relacionados
 
 **¡Visita nuestro moderno sitio web!**
 
-👉 **[https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/](https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/)**
+👉 **[https://computingvictor.github.io/datos-abiertos-cyl-bot/](https://computingvictor.github.io/datos-abiertos-cyl-bot/)**
 
 **Características:**
 - ✨ Diseño moderno estilo Apple con animaciones fluidas
@@ -197,7 +197,7 @@ Búsqueda inteligente con sinónimos y términos relacionados
 
 1. **Fork del repositorio**
 ```bash
-git clone https://github.com/ComputingVictor/DATOS-ABIERTOS-CYL-BOT
+git clone https://github.com/computingvictor/datos-abiertos-cyl-bot
 cd DATOS-ABIERTOS-CYL-BOT
 ```
 
@@ -224,7 +224,7 @@ curl -X POST "https://api.telegram.org/bot[TOKEN]/setWebhook" \
 
 ```bash
 # 1. Clonar repositorio
-git clone https://github.com/ComputingVictor/DATOS-ABIERTOS-CYL-BOT
+git clone https://github.com/computingvictor/datos-abiertos-cyl-bot
 cd DATOS-ABIERTOS-CYL-BOT
 
 # 2. Configurar variables
@@ -423,7 +423,7 @@ FASTAPI_DEBUG=true
 - 💬 Telegram: [@ComputingVictor](https://t.me/ComputingVictor)
 
 ### **Para desarrolladores**
-- 🐛 **Issues**: [GitHub Issues](https://github.com/ComputingVictor/DATOS-ABIERTOS-CYL-BOT/issues)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/computingvictor/datos-abiertos-cyl-bot/issues)
 - 🔧 **Pull Requests**: Contribuciones bienvenidas
 - 📧 **Email técnico**: [victor@ejemplo.com]
 
@@ -467,6 +467,6 @@ Ver [LICENSE](LICENSE) para más detalles.
 
 *Haciendo la información pública más accesible para todos*
 
-**[🚀 Usar el bot](https://t.me/cyl_asistente_bot)** • **[💻 Ver código](https://github.com/ComputingVictor/DATOS-ABIERTOS-CYL-BOT)** • **[🌐 Sitio web](https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/)**
+**[🚀 Usar el bot](https://t.me/cyl_asistente_bot)** • **[💻 Ver código](https://github.com/computingvictor/datos-abiertos-cyl-bot)** • **[🌐 Sitio web](https://computingvictor.github.io/datos-abiertos-cyl-bot/)**
 
 </div>

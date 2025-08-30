@@ -3,7 +3,7 @@ title: "Bot Datos Abiertos CyL"
 description: "Tu asistente inteligente para datos abiertos de Castilla y León"
 author: "Víctor Viloria Vázquez"
 url: "https://computingvictor.github.io"
-baseurl: "/DATOS-ABIERTOS-CYL-BOT"
+baseurl: "/datos-abiertos-cyl-bot"
 
 # GitHub Pages settings
 theme: null
@@ -17,7 +17,7 @@ timezone: Europe/Madrid
 
 # Social links
 telegram_url: "https://t.me/cyl_asistente_bot"
-github_url: "https://github.com/ComputingVictor/DATOS-ABIERTOS-CYL-BOT"
+github_url: "https://github.com/computingvictor/datos-abiertos-cyl-bot"
 
 # Build settings
 markdown: kramdown
