@@ -213,3 +213,4 @@ dev/
 sandbox/
 .claude/settings.local.json
 update_docker.sh
+data/jcyl_bot.db

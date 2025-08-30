@@ -252,7 +252,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
         
         message = (
             "🏛️ <b>Portal de Datos Abiertos - Junta de Castilla y León</b>\n\n"
-            "¡Bienvenido al explorador oficial de datos abiertos de Castilla y León!\n"
+            "¡Bienvenido al explorador oficial de datos abiertos de Castilla y León!\n\n"
             
             "🌍 Acceso libre y transparente a la información pública oficial.\n\n"
             
@@ -265,7 +265,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             "• Suscribirte a alertas de actualizaciones\n"
             "• Acceder a documentos adjuntos oficiales\n\n"
             
-            "🚀 <b>¡Comienza explorando!</b>\n"
+            "🚀 <b>¡Comienza explorando!</b>\n\n"
 
             "👇 Selecciona una categoría para descubrir datos oficiales:\n"
         )
