@@ -1,209 +1,472 @@
 # 🏛️ Portal de Datos Abiertos - Bot de Telegram
 
-**Bot oficial para explorar los datos abiertos de Castilla y León de forma fácil e intuitiva**
+**Tu asistente inteligente para explorar los datos abiertos de Castilla y León**
 
-[![Telegram](https://img.shields.io/badge/Telegram-Bot-blue)](https://t.me/cyl_asistente_bot)
-[![Python](https://img.shields.io/badge/Python-3.11+-green)](https://python.org)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
-[![Website](https://img.shields.io/badge/Website-GitHub%20Pages-brightgreen)](https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/)
+[![Telegram](https://img.shields.io/badge/Telegram-@cyl__asistente__bot-blue?logo=telegram)](https://t.me/cyl_asistente_bot)
+[![Website](https://img.shields.io/badge/Website-Visitar-brightgreen?logo=github)](https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/)
+[![License](https://img.shields.io/badge/License-MIT-yellow?logo=opensourceinitiative)](LICENSE)
+[![Railway](https://img.shields.io/badge/Deploy-Railway-blueviolet?logo=railway)](https://railway.app)
 
-## 🌐 Sitio Web
+## 🚀 **¡Pruébalo ahora!**
 
-**¡Nueva página web oficial!** Visita nuestra moderna landing page:
-👉 **[https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/](https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/)**
+👉 **[Abrir bot en Telegram](https://t.me/cyl_asistente_bot)** 👈
 
-- ✨ Diseño moderno estilo Apple con animaciones fluidas
-- 📱 Totalmente responsive (móvil y desktop)
-- 🚀 Información completa sobre todas las funcionalidades
-- 📊 Estadísticas en tiempo real del portal
-- 🎯 Acceso directo al bot de Telegram
+💻 **[Visitar página web oficial](https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/)**
 
-## 🌟 ¿Qué es este bot?
+---
 
-Un bot de Telegram que te permite acceder a **más de 400 datasets** oficiales de la Junta de Castilla y León de forma gratuita y sin complicaciones. Explora información sobre salud, educación, turismo, medio ambiente y mucho más.
+## 🌟 **¿Qué es este bot?**
 
-### 📊 ¿Qué puedes encontrar?
+Un **asistente inteligente de Telegram** que te da acceso inmediato a **más de 400 datasets oficiales** de la Junta de Castilla y León. Sin registros, sin complicaciones, completamente **gratuito**.
 
-- **Datos de Salud**: Hospitales, centros de salud, estadísticas sanitarias
-- **Educación**: Centros educativos, programas formativos, becas
-- **Turismo**: Alojamientos, rutas turísticas, patrimonio cultural  
-- **Medio Ambiente**: Calidad del aire, espacios naturales, energías renovables
-- **Demografía**: Población, censos, estadísticas municipales
-- **Economía**: Empresas, comercio, indicadores económicos
-- **Y mucho más**: Transporte, vivienda, deportes, cultura...
+### ✨ **¿Por qué usar este bot?**
 
-## 🚀 ¿Cómo empezar?
+- 🔍 **Búsqueda inteligente** con sinónimos (busca "clínica" y encuentra datasets de "salud")
+- 📱 **Acceso móvil 24/7** desde cualquier lugar
+- 🔔 **Alertas automáticas** cuando se actualicen los datos que te interesan
+- 💾 **Descargas directas** en Excel, CSV, JSON y más formatos
+- ⭐ **Favoritos** para acceso rápido a tus datasets más usados
 
-### 1. Busca el bot en Telegram
-- Busca `@cyl_asistente_bot` en Telegram
-- O haz clic [aquí](https://t.me/cyl_asistente_bot) para acceder directamente
+---
 
-### 2. Explora las categorías
-- Usa `/start` para ver todas las categorías disponibles
-- Cada categoría muestra cuántos datasets contiene
-- Los emojis te ayudan a identificar rápidamente cada tema
+## 📊 **¿Qué datos puedes encontrar?**
 
-### 3. Descarga los datos que necesites
-- Múltiples formatos disponibles: **Excel, CSV, JSON, PDF**
-- Enlaces directos de descarga desde fuentes oficiales
-- Sin registros ni limitaciones
+### 🏥 **Salud**
+Hospitales, centros de salud, estadísticas sanitarias, recursos médicos
 
-## 🔔 Sistema de Alertas
+### 🎓 **Educación**  
+Centros educativos, programas formativos, becas, estadísticas académicas
 
-### ¿Te interesa estar al día?
+### 🏨 **Turismo**
+Alojamientos rurales, rutas turísticas, patrimonio cultural, puntos de interés
 
-**Suscríbete a categorías completas:**
-- Recibe notificaciones cuando se publiquen nuevos datos de salud, educación, etc.
-- Ejemplo: "Nuevo dataset sobre centros de salud disponible"
+### 🌱 **Medio Ambiente**
+Calidad del aire, espacios naturales, energías renovables, gestión de residuos
 
-**Suscríbete a datasets específicos:**
-- Te avisamos cuando se actualicen datos concretos que te interesan
-- Ejemplo: "Actualizada la lista de hospitales de León"
+### 👥 **Demografía**
+Población por municipios, censos, estadísticas de edad y género
 
-### Gestiona tus alertas
-- Usa `/mis_alertas` para ver tus suscripciones activas
-- Cancela alertas cuando quieras con un clic
-- Sin spam: solo recibes lo que realmente te interesa
+### 💼 **Economía**
+Empresas registradas, comercio, indicadores económicos, presupuestos públicos
 
-## 📱 Comandos principales
+### 🚌 **Transporte**
+Líneas de autobús, estaciones, infraestructuras de transporte
 
-| Comando | Descripción |
-|---------|-------------|
-| `/start` | Ver todas las categorías de datos disponibles |
-| `/buscar [término]` | Buscar datasets por palabra clave |
-| `/recientes` | Ver los datos más recientemente actualizados |
-| `/estadisticas` | Estadísticas generales del portal |
-| `/favoritos` | Tus datasets guardados como favoritos |
-| `/mis_alertas` | Gestionar tus suscripciones de alertas |
-| `/help` | Ayuda completa y información del bot |
+### 🏠 **Vivienda**
+Precios de vivienda, alquileres, promociones públicas
 
-## 💡 Casos de uso reales
+*...y muchas categorías más*
 
-### 👨‍🎓 Estudiantes e Investigadores
-- **TFG/TFM**: Datos oficiales para proyectos académicos
-- **Análisis estadísticos**: Información demográfica y económica
-- **Visualización de datos**: CSV y JSON listos para usar
+---
 
-### 🏢 Empresas y Emprendedores  
-- **Análisis de mercado**: Datos económicos y demográficos
-- **Localización**: Información sobre municipios y comarcas
-- **Turismo rural**: Rutas, alojamientos y puntos de interés
+## 🎯 **Casos de uso reales**
 
-### 👨‍💼 Profesionales del Sector Público
-- **Administraciones**: Benchmarking con otros municipios
-- **ONGs**: Datos para proyectos sociales y ambientales  
-- **Consultorías**: Informes con datos oficiales actualizados
+### 👨‍🎓 **Estudiantes e Investigadores**
+- **Proyectos de fin de grado**: Datos oficiales para TFG/TFM
+- **Análisis estadísticos**: Información demográfica y económica verificada
+- **Visualizaciones**: Archivos CSV y JSON listos para usar
 
-### 📰 Periodistas y Comunicadores
-- **Noticias basadas en datos**: Información oficial verificada
-- **Seguimiento de tendencias**: Datos actualizados automáticamente
-- **Contexto regional**: Comparativas entre provincias y municipios
+### 🏢 **Empresas y Startups**
+- **Análisis de mercado**: Datos económicos para estudios de viabilidad
+- **Expansión geográfica**: Información detallada sobre municipios
+- **Turismo rural**: Descubre oportunidades en el sector
 
-## ✨ Ventajas del bot
+### 👨‍💼 **Administración Pública**
+- **Benchmarking**: Compara datos con otros municipios
+- **Políticas públicas**: Base de datos para toma de decisiones
+- **Transparencia**: Acceso ciudadano a información oficial
 
-### 🎯 **Fácil de usar**
-- No necesitas conocimientos técnicos
-- Interfaz intuitiva con botones y menús
-- Búsqueda por categorías o palabras clave
+### 📰 **Periodistas y Comunicadores**
+- **Periodismo de datos**: Información oficial para artículos
+- **Fact-checking**: Verificación con fuentes oficiales
+- **Tendencias regionales**: Seguimiento de indicadores clave
 
-### 📊 **Datos oficiales**
-- Directamente de la Junta de Castilla y León
-- Información actualizada automáticamente
+---
+
+## 📱 **Cómo usar el bot**
+
+### **Paso 1: Iniciar**
+```
+/start
+```
+Ve todas las categorías disponibles con un solo comando
+
+### **Paso 2: Buscar**
+```
+/buscar salud
+/buscar clínica
+/buscar población León
+```
+Búsqueda inteligente con sinónimos y términos relacionados
+
+### **Paso 3: Explorar**
+- Toca cualquier categoría para ver sus datasets
+- Los números indican cuántos datasets hay disponibles
+- Usa emojis para identificar rápidamente los temas
+
+### **Paso 4: Descargar**
+- Múltiples formatos: Excel, CSV, JSON, PDF
+- Enlaces directos a fuentes oficiales
+- Sin limitaciones ni registros
+
+### **Paso 5: Gestionar** (Opcional)
+```
+/favoritos     # Tus datasets guardados
+/mis_alertas   # Gestionar suscripciones
+/recientes     # Últimas actualizaciones
+```
+
+---
+
+## 🔔 **Sistema de Alertas Inteligentes**
+
+### **Suscríbete a categorías completas**
+- Recibe notificaciones de nuevos datasets de salud, educación, etc.
+- Control total: activa solo lo que te interesa
+
+### **Suscríbete a datasets específicos**  
+- Te avisamos cuando se actualicen datos concretos
+- Ejemplo: "Lista de hospitales de León actualizada"
+
+### **Gestión simple**
+- `+` para suscribirte directamente desde cualquier dataset
+- `/mis_alertas` para ver y cancelar suscripciones
+- Sin spam: solo recibes lo relevante
+
+---
+
+## 💡 **Comandos principales**
+
+| Comando | Función | Ejemplo |
+|---------|---------|---------|
+| `/start` | Ver todas las categorías | - |
+| `/buscar` | Buscar por palabras clave | `/buscar hospital` |
+| `/recientes` | Datasets actualizados recientemente | - |
+| `/estadisticas` | Resumen general del portal | - |
+| `/favoritos` | Tus datasets guardados | - |
+| `/mis_alertas` | Gestionar suscripciones | - |
+| `/help` | Ayuda completa | - |
+
+---
+
+## ✅ **Ventajas únicas**
+
+### 🎯 **Sin complicaciones**
+- No necesitas registrarte
+- Interfaz intuitiva con botones
+- Respuestas instantáneas
+
+### 📊 **Datos oficiales 100% verificados**
+- Directo de la Junta de Castilla y León  
+- Actualización automática diaria
 - Sin manipulación ni interpretación
 
-### 🔄 **Siempre actualizado**  
-- Los datos se sincronizan automáticamente
-- Alertas cuando hay nuevas actualizaciones
-- Sin necesidad de consultar webs manualmente
+### 🔄 **Siempre actualizado**
+- Sincronización automática cada 2 horas
+- Alertas proactivas de cambios
+- Nunca trabajas con datos obsoletos
 
-### 💰 **Completamente gratuito**
-- Sin limitaciones de descargas
-- Sin registros complicados
-- Acceso 24/7 desde cualquier dispositivo
+### 🔒 **Privacidad garantizada**
+- Solo almacenamos tu ID para alertas
+- No guardamos datos personales
+- Código abierto para máxima transparencia
 
-## 🛠️ Para desarrolladores
+---
 
-### 🚀 Ejecutar tu propia instancia
+## 🌐 **Página Web Oficial**
 
-**Prerrequisitos:**
-- Token de bot de Telegram ([obtener aquí](https://t.me/BotFather))
-- Docker y Docker Compose (recomendado)
+**¡Visita nuestro moderno sitio web!**
 
-**Instalación rápida:**
+👉 **[https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/](https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/)**
+
+**Características:**
+- ✨ Diseño moderno estilo Apple con animaciones fluidas
+- 📱 Completamente responsive (móvil y desktop) 
+- 📊 Estadísticas en tiempo real del portal
+- 🚀 Acceso directo al bot desde la web
+
+---
+
+# 🛠️ **Documentación Técnica**
+
+*Esta sección está dirigida a desarrolladores y usuarios técnicos*
+
+## 🚀 **Despliegue**
+
+### **Opción 1: Railway (Recomendado para producción)**
+
+1. **Fork del repositorio**
 ```bash
-# 1. Clonar el repositorio
+git clone https://github.com/ComputingVictor/DATOS-ABIERTOS-CYL-BOT
+cd DATOS-ABIERTOS-CYL-BOT
+```
+
+2. **Desplegar en Railway**
+- Conecta tu cuenta GitHub con [Railway](https://railway.app)
+- Selecciona el repositorio forkeado
+- Railway detecta automáticamente el Dockerfile
+
+3. **Variables de entorno necesarias**
+```bash
+TELEGRAM_BOT_TOKEN=tu_token_aqui
+DATABASE_URL=postgresql://... # Railway lo genera automáticamente
+JCYL_API_BASE_URL=https://analisis.datosabiertos.jcyl.es
+ALERTS_ENABLED=true
+```
+
+4. **Configurar webhook**
+```bash
+curl -X POST "https://api.telegram.org/bot[TOKEN]/setWebhook" \
+-d "url=https://tu-proyecto.railway.app/webhook"
+```
+
+### **Opción 2: Docker local**
+
+```bash
+# 1. Clonar repositorio
 git clone https://github.com/ComputingVictor/DATOS-ABIERTOS-CYL-BOT
 cd DATOS-ABIERTOS-CYL-BOT
 
 # 2. Configurar variables
 cp .env.example .env
-# Edita .env y añade tu TELEGRAM_BOT_TOKEN
+# Edita .env con tu TELEGRAM_BOT_TOKEN
 
-# 3. Ejecutar con Docker
+# 3. Ejecutar
 docker-compose up -d
+
+# 4. Ver logs
+docker-compose logs -f
 ```
 
-### 🔧 Configuración
+### **Opción 3: Ejecución directa**
 
-| Variable | Descripción | Valor por defecto |
-|----------|-------------|-------------------|
-| `TELEGRAM_BOT_TOKEN` | Token del bot (requerido) | - |
-| `DATABASE_URL` | Base de datos | `sqlite:///data/bot.db` |
-| `ALERTS_ENABLED` | Activar alertas automáticas | `true` |
-| `ALERTS_CHECK_INTERVAL_HOURS` | Frecuencia de checks | `6` |
+```bash
+# Prerrequisitos: Python 3.11+
+pip install -r requirements.txt
 
-### 📡 API REST incluida
+# Configurar variables
+export TELEGRAM_BOT_TOKEN="tu_token"
+export DATABASE_URL="sqlite:///bot.db"
 
-El bot también expone una API REST:
+# Ejecutar
+python main.py
+```
+
+## 🔧 **Configuración avanzada**
+
+### **Variables de entorno completas**
+
+| Variable | Descripción | Valor por defecto | Requerida |
+|----------|-------------|-------------------|-----------|
+| `TELEGRAM_BOT_TOKEN` | Token del bot de Telegram | - | ✅ |
+| `TELEGRAM_WEBHOOK_URL` | URL base para webhook (production) | - | 🟡 |
+| `DATABASE_URL` | Conexión a base de datos | `sqlite:///jcyl_bot.db` | ❌ |
+| `JCYL_API_BASE_URL` | URL de la API de JCyL | `https://analisis.datosabiertos.jcyl.es` | ❌ |
+| `ALERTS_ENABLED` | Activar sistema de alertas | `true` | ❌ |
+| `ALERTS_CHECK_INTERVAL_HOURS` | Frecuencia de verificación | `2` | ❌ |
+| `FASTAPI_DEBUG` | Modo debug de FastAPI | `false` | ❌ |
+| `DATASETS_PER_PAGE` | Datasets por página | `10` | ❌ |
+| `THEMES_PER_PAGE` | Categorías por página | `10` | ❌ |
+
+### **Arquitectura del sistema**
+
+```
+┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
+│   Telegram      │    │   FastAPI        │    │   JCYL API      │
+│   Bot API       │◄──►│   Application    │◄──►│   (External)    │
+└─────────────────┘    └──────────────────┘    └─────────────────┘
+                               │
+                               ▼
+                       ┌──────────────────┐
+                       │   PostgreSQL/    │
+                       │   SQLite DB      │
+                       └──────────────────┘
+```
+
+### **API REST interna**
+
+El bot expone endpoints internos para monitoreo:
+
 - `GET /health` - Estado del servicio
-- `GET /debug/themes` - Test de conexión con JCYL
-- `GET /debug/datasets` - Test de listado de datasets
+- `GET /debug/themes` - Test conexión con API JCyL  
+- `GET /debug/datasets` - Test listado de datasets
+- `POST /webhook` - Endpoint para webhook de Telegram
 
-## 🔒 Privacidad y transparencia
+### **Estructura de base de datos**
 
-### ✅ **Qué datos almacenamos**
-- Tu ID de Telegram (para enviarte alertas)
-- Tus suscripciones a categorías/datasets
-- Tus datasets marcados como favoritos
+```sql
+-- Usuarios del bot
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    telegram_id BIGINT UNIQUE NOT NULL,
+    username VARCHAR(255),
+    first_name VARCHAR(255),
+    last_name VARCHAR(255),
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
-### ❌ **Qué NO almacenamos**
-- Datos personales (nombre, teléfono, etc.)
-- Contenido de los datasets (solo metadatos)
-- Historial de búsquedas o descargas
+-- Suscripciones a alertas
+CREATE TABLE subscriptions (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    subscription_type VARCHAR(50), -- 'theme', 'dataset', 'keyword'
+    subscription_id VARCHAR(255),
+    subscription_name TEXT,
+    is_active BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
-### 🛡️ **Seguridad**
-- Base de datos local cifrada
-- Sin tracking ni análisis de comportamiento
-- Código fuente abierto para auditoría
+-- Favoritos de usuarios
+CREATE TABLE bookmarks (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    dataset_id VARCHAR(255) NOT NULL,
+    dataset_title TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+```
 
-## 📞 Soporte y contribuciones
+### **Personalización**
 
-### 🐛 ¿Encontraste un error?
-1. Describe el problema detalladamente
-2. Incluye capturas si es posible
-3. Crea un [issue en GitHub](https://github.com/ComputingVictor/DATOS-ABIERTOS-CYL-BOT/issues)
+#### **Añadir nuevos sinónimos de búsqueda**
+Edita `src/api/client.py`, función de búsqueda:
 
-### 💡 ¿Tienes una idea?
-- Comparte sugerencias de mejora
-- Propón nuevas funcionalidades
-- Contribuye con código (PRs bienvenidos)
+```python
+synonym_map = {
+    'clinica': ['salud', 'medicina', 'hospital'],
+    'tu_termino': ['sinonimo1', 'sinonimo2'],
+    # Añade más aquí
+}
+```
 
-### 📈 ¿Quieres más datos?
-Este bot utiliza la API oficial de datos abiertos de JCyL. Si necesitas datos que no están disponibles, contacta directamente con:
-- [Portal de Datos Abiertos JCyL](https://datosabiertos.jcyl.es)
-- [Servicio de soporte JCyL](mailto:soporte@jcyl.es)
+#### **Modificar emojis de categorías**
+Edita `src/bot/keyboards.py`:
 
-## 👨‍💻 Créditos
+```python
+theme_emojis = {
+    'salud': '🏥',
+    'tu_categoria': '🆕',  # Añade tu emoji personalizado
+}
+```
 
-**Desarrollado por:** Víctor Viloria Vázquez  
-**GitHub:** [@ComputingVictor](https://github.com/ComputingVictor)  
-**Tecnologías:** Python, Telegram Bot API, FastAPI, SQLAlchemy
+#### **Configurar intervalos de alertas**
+```bash
+# Verificar cada hora
+ALERTS_CHECK_INTERVAL_HOURS=1
 
-## 📄 Licencia
+# Verificar cada 6 horas (por defecto)  
+ALERTS_CHECK_INTERVAL_HOURS=6
+```
 
-Este proyecto está bajo la Licencia MIT. Consulta el archivo [LICENSE](LICENSE) para más detalles.
+## 📊 **Monitoreo y logs**
+
+### **Logs importantes**
+- Inicialización de servicios
+- Errores de API de JCyL
+- Webhook de Telegram
+- Sistema de alertas
+
+### **Métricas de Railway**
+- CPU y memoria usage
+- Respuesta HTTP
+- Logs en tiempo real
+- Uptime monitoring
+
+### **Health checks**
+```bash
+# Verificar estado
+curl https://tu-proyecto.railway.app/health
+
+# Test conexión JCyL
+curl https://tu-proyecto.railway.app/debug/themes
+```
+
+## 🔒 **Seguridad**
+
+### **Buenas prácticas implementadas**
+- ✅ Variables de entorno para secrets
+- ✅ Validación de entrada de usuarios  
+- ✅ Rate limiting implícito vía Telegram
+- ✅ No logging de datos sensibles
+- ✅ HTTPS obligatorio en producción
+
+### **Consideraciones de privacidad**
+- Solo almacenamos ID de Telegram (número)
+- No guardamos mensajes ni historial
+- Datos mínimos necesarios para alertas
+- Base de datos local/privada
+
+## 🧪 **Testing y desarrollo**
+
+### **Entorno de desarrollo**
+```bash
+# Bot separado para testing
+TELEGRAM_BOT_TOKEN=token_de_desarrollo
+DATABASE_URL=sqlite:///test_bot.db
+
+# Modo debug activado
+FASTAPI_DEBUG=true
+```
+
+### **Testing manual**
+1. Crear bot de prueba con @BotFather
+2. Usar token de desarrollo
+3. Base de datos separada
+4. No configurar webhook (usa polling)
 
 ---
 
-**🏛️ Portal de Datos Abiertos - Junta de Castilla y León**  
-*Explorando la información pública de manera simple y accesible*
+## 📞 **Soporte**
+
+### **Para usuarios finales**
+- 🤖 Usa `/help` dentro del bot
+- 💬 Telegram: [@ComputingVictor](https://t.me/ComputingVictor)
+
+### **Para desarrolladores**
+- 🐛 **Issues**: [GitHub Issues](https://github.com/ComputingVictor/DATOS-ABIERTOS-CYL-BOT/issues)
+- 🔧 **Pull Requests**: Contribuciones bienvenidas
+- 📧 **Email técnico**: [victor@ejemplo.com]
+
+### **Para datos oficiales**
+- 🏛️ **Portal JCyL**: [datosabiertos.jcyl.es](https://datosabiertos.jcyl.es)
+- 📧 **Soporte oficial**: soporte@jcyl.es
+
+---
+
+## 👨‍💻 **Créditos y agradecimientos**
+
+**Desarrollado por:** [Víctor Viloria Vázquez](https://github.com/ComputingVictor)
+
+**Tecnologías utilizadas:**
+- 🐍 Python 3.11+ 
+- 🚀 FastAPI + Uvicorn
+- 🤖 python-telegram-bot
+- 🗄️ SQLAlchemy + PostgreSQL/SQLite
+- 🐳 Docker + Docker Compose
+- ☁️ Railway (hosting)
+- 📊 GitHub Pages (web)
+
+**Agradecimientos especiales:**
+- Junta de Castilla y León por el portal de datos abiertos
+- Comunidad de Python por las librerías excepcionales
+- Railway por el hosting gratuito y sencillo
+
+---
+
+## 📄 **Licencia**
+
+Este proyecto está bajo la **Licencia MIT**. Puedes usar, modificar y distribuir libremente.
+
+Ver [LICENSE](LICENSE) para más detalles.
+
+---
+
+<div align="center">
+
+**🏛️ Portal de Datos Abiertos - Junta de Castilla y León**
+
+*Haciendo la información pública más accesible para todos*
+
+**[🚀 Usar el bot](https://t.me/cyl_asistente_bot)** • **[💻 Ver código](https://github.com/ComputingVictor/DATOS-ABIERTOS-CYL-BOT)** • **[🌐 Sitio web](https://computingvictor.github.io/DATOS-ABIERTOS-CYL-BOT/)**
+
+</div>
