@@ -44,6 +44,10 @@ body {
     border-bottom-color: var(--border-color);
 }
 
+:root.dark-mode .nav-menu {
+    background-color: var(--background-primary) !important;
+}
+
 /* CSS Variables for consistent theming - Optimized Color Palette */
 :root {
     /* Primary Colors - Ocean Depth Palette */
@@ -759,9 +763,35 @@ h1, h2, h3, h4, h5, h6 {
         font-size: 3rem;
     }
     
+    /* Mejor tamaño del mockup para tablets */
     .phone-mockup {
-        width: 250px;
-        height: 500px;
+        width: 280px;
+        height: 560px;
+    }
+    
+    /* Asegurar que se vea completo en tablets */
+    .hero-visual {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 600px;
+    }
+}
+
+/* Media query específica para tablets/iPad */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .phone-mockup {
+        width: 300px;
+        height: 600px;
+    }
+    
+    .hero-visual {
+        min-height: 650px;
+    }
+    
+    /* Ajustar el padding del hero para tablets */
+    .hero {
+        padding: 120px 0 80px;
     }
 }
 
@@ -771,13 +801,15 @@ h1, h2, h3, h4, h5, h6 {
         left: -100%;
         top: 64px;
         flex-direction: column;
-        background-color: rgba(255, 255, 255, 0.95);
+        background-color: var(--background-primary);
         backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
         width: 100%;
         text-align: center;
         transition: 0.3s;
         padding: 40px 0;
         box-shadow: var(--shadow-light);
+        border-right: 1px solid var(--border-color);
     }
 
     .nav-menu.active {
@@ -900,5 +932,10 @@ h1, h2, h3, h4, h5, h6 {
     .feature-card {
         background: #2c2c2e;
         border: 1px solid var(--border-color);
+    }
+    
+    /* Menú móvil en modo oscuro */
+    .nav-menu {
+        background-color: var(--background-primary) !important;
     }
 }
