@@ -979,68 +979,95 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .phone-mockup {
-        width: 160px;
-        height: 320px;
+        width: 220px;
+        height: 440px;
+        margin: 20px auto;
     }
     
     .hero-content {
-        gap: 20px;
+        gap: 40px;
     }
     
     .hero-visual {
-        min-height: 350px;
+        min-height: 480px;
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 10px 0;
+        padding: 20px 0;
     }
     
     .hero {
-        padding: 80px 0 40px;
+        padding: 100px 0 60px;
+        min-height: auto;
     }
     
-    /* Ajustar contenido del chat para móviles pequeños */
+    /* Ajustar contenido del chat para móviles */
     .chat-header {
-        padding: 8px 12px;
+        padding: 40px 16px 16px;
     }
     
     .chat-avatar {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
     }
     
     .chat-avatar img {
-        width: 24px;
-        height: 24px;
+        width: 28px;
+        height: 28px;
     }
     
     .chat-name {
-        font-size: 14px;
+        font-size: 16px;
     }
     
     .chat-status {
-        font-size: 10px;
+        font-size: 12px;
     }
     
     .chat-messages {
-        padding: 6px;
-        gap: 4px;
+        padding: 12px;
+        gap: 8px;
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
     }
     
-    .message-bubble {
-        padding: 4px 6px;
-        font-size: 10px;
-        line-height: 1.2;
-        max-width: 80%;
-        border-radius: 8px;
-    }
-    
-    .message-user {
-        max-width: 75%;
-    }
-    
-    .message-bot {
+    .message {
         max-width: 85%;
+        animation: messageSlideIn 0.5s ease;
+    }
+    
+    .message-text {
+        padding: 8px 12px;
+        border-radius: 16px;
+        font-size: 12px;
+        line-height: 1.4;
+        font-weight: 500;
+        word-wrap: break-word;
+        hyphens: auto;
+    }
+    
+    .bot-message {
+        align-self: flex-start;
+    }
+    
+    .user-message {
+        align-self: flex-end;
+    }
+    
+    .bot-message .message-text {
+        background: #ffffff;
+        color: var(--gray-900);
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        border: 1px solid var(--gray-200);
+    }
+    
+    .user-message .message-text {
+        background: var(--primary-color);
+        color: white;
+        box-shadow: 0 2px 6px rgba(0, 102, 204, 0.2);
     }
 }
 
