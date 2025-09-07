@@ -668,7 +668,8 @@ async def handle_subscription(query, context) -> None:
         if data.startswith("s:"):
             # Get original callback from mapper
             from .keyboards import callback_mapper
-            original_data = callback_mapper.get_original_callback(data.split(":", 1)[1])
+            short_id = data.split(":", 1)[1]
+            original_data = callback_mapper.get_full_data(short_id)
             if not original_data:
                 logger.error(f"Could not find original callback for short ID: {data}")
                 await query.edit_message_text("❌ Error: callback no encontrado.")
