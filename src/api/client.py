@@ -206,27 +206,9 @@ class JCYLAPIClient:
     
     async def get_themes_with_real_counts(self) -> List[Facet]:
         """Get themes with accurate counts based on actual filterable datasets."""
-        # First get the theme names from facets
-        theme_facets = await self.get_catalog_facets("default.theme")
-        
-        # Then calculate real counts for each theme
-        corrected_themes = []
-        for theme_facet in theme_facets:
-            try:
-                # Get actual count for this theme
-                datasets, real_count = await self.get_datasets(theme=theme_facet.name, limit=1, offset=0)
-                # Create corrected facet with real count
-                corrected_theme = Facet(name=theme_facet.name, count=real_count)
-                corrected_themes.append(corrected_theme)
-                logger.info(f"Theme '{theme_facet.name}': API facet={theme_facet.count}, real={real_count}")
-            except Exception as e:
-                logger.warning(f"Could not get real count for theme '{theme_facet.name}': {e}")
-                # Fallback to original facet count
-                corrected_themes.append(theme_facet)
-        
-        # Sort by count (descending) like the original
-        corrected_themes.sort(key=lambda x: x.count, reverse=True)
-        return corrected_themes
+        # The facet counts are actually correct and match the web interface
+        # Our previous method was using API total_count which is unreliable
+        return await self.get_catalog_facets("default.theme")
 
     async def get_keywords(self, theme: Optional[str] = None) -> List[Facet]:
         refine = {"default.theme": theme} if theme else None
