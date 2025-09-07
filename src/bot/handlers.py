@@ -5,6 +5,9 @@ from typing import Optional
 import httpx
 import os
 from datetime import datetime, timedelta
+import pandas as pd
+import io
+import tempfile
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
@@ -1859,6 +1862,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "🔍 /buscar [término] - Buscar datasets por texto\n"
         "🕒 /recientes - Ver datasets actualizados recientemente\n"
         "📅 /resumen_diario - Ver resúmenes diarios de datasets nuevos\n"
+        "📊 /catalogo - Descargar catálogo completo en Excel\n"
         "📈 /estadisticas - Ver estadísticas generales\n"
         "⭐ /favoritos - Ver tus datasets favoritos guardados\n"
         "🔔 /mis_alertas - Ver y gestionar tus suscripciones\n"
@@ -1908,6 +1912,7 @@ async def show_help_callback(query, context) -> None:
         "🔍 /buscar [término] - Buscar datasets por texto\n"
         "🕒 /recientes - Ver datasets actualizados recientemente\n"
         "📅 /resumen_diario - Ver resúmenes diarios de datasets nuevos\n"
+        "📊 /catalogo - Descargar catálogo completo en Excel\n"
         "📈 /estadisticas - Ver estadísticas generales\n"
         "⭐ /favoritos - Ver tus datasets favoritos guardados\n"
         "🔔 /mis_alertas - Ver y gestionar tus suscripciones\n"
@@ -2159,6 +2164,125 @@ async def handle_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE)
     except Exception as e:
         logger.error(f"Error in handle_text_search: {e}")
         await update.message.reply_text("❌ Error al realizar la búsqueda. Intenta nuevamente.")
+
+
+async def export_catalog_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle /catalogo command - Export full catalog as XLSX."""
+    loading_message = await update.message.reply_text("📊 Generando catálogo completo en XLSX...\n\nEsto puede tomar unos minutos.")
+    
+    try:
+        # Get all datasets
+        logger.info("Starting catalog export...")
+        all_datasets = []
+        offset = 0
+        limit = 1000
+        
+        while True:
+            batch_datasets, total_estimate = await api_client.get_datasets(
+                limit=limit, 
+                offset=offset
+            )
+            
+            if not batch_datasets:
+                break
+                
+            all_datasets.extend(batch_datasets)
+            offset += limit
+            
+            # Update progress
+            await loading_message.edit_text(
+                f"📊 Procesando datasets...\n\n"
+                f"Descargados: {len(all_datasets)}\n"
+                f"Progreso: {offset:,} de ~{total_estimate:,}"
+            )
+            
+            # If we got fewer than the limit, we're at the end
+            if len(batch_datasets) < limit:
+                break
+            
+            # Safety check
+            if offset > 50000:
+                logger.warning(f"Reached maximum offset {offset}, stopping")
+                break
+        
+        logger.info(f"Downloaded {len(all_datasets)} datasets for catalog export")
+        
+        # Prepare data for Excel
+        await loading_message.edit_text("📊 Preparando archivo Excel...")
+        
+        catalog_data = []
+        for dataset in all_datasets:
+            catalog_data.append({
+                'ID': dataset.dataset_id,
+                'Título': dataset.title,
+                'Descripción': dataset.description,
+                'Editor': dataset.publisher,
+                'Temas': ', '.join(dataset.themes) if dataset.themes else '',
+                'Palabras Clave': ', '.join(dataset.keywords) if dataset.keywords else '',
+                'Última Modificación': dataset.modified,
+                'Registros': dataset.records_count,
+                'Licencia': dataset.license
+            })
+        
+        # Create DataFrame
+        df = pd.DataFrame(catalog_data)
+        
+        # Create Excel file in memory
+        with tempfile.NamedTemporaryFile(suffix='.xlsx', delete=False) as tmp_file:
+            with pd.ExcelWriter(tmp_file.name, engine='openpyxl') as writer:
+                df.to_excel(writer, sheet_name='Catálogo Completo', index=False)
+                
+                # Auto-adjust column widths
+                worksheet = writer.sheets['Catálogo Completo']
+                for column in worksheet.columns:
+                    max_length = 0
+                    column_letter = column[0].column_letter
+                    for cell in column:
+                        try:
+                            if len(str(cell.value)) > max_length:
+                                max_length = len(str(cell.value))
+                        except:
+                            pass
+                    adjusted_width = min(max_length + 2, 50)
+                    worksheet.column_dimensions[column_letter].width = adjusted_width
+            
+            # Send file
+            await loading_message.edit_text("📊 Enviando archivo...")
+            
+            current_date = datetime.now().strftime("%Y-%m-%d")
+            filename = f"catalogo_datos_abiertos_cyl_{current_date}.xlsx"
+            
+            with open(tmp_file.name, 'rb') as file:
+                await update.message.reply_document(
+                    document=file,
+                    filename=filename,
+                    caption=(
+                        f"📊 **Catálogo Completo de Datos Abiertos de Castilla y León**\n\n"
+                        f"🗓️ **Generado:** {current_date}\n"
+                        f"📄 **Total datasets:** {len(all_datasets):,}\n"
+                        f"📋 **Columnas incluidas:**\n"
+                        f"• ID, Título, Descripción\n"
+                        f"• Editor, Temas, Palabras Clave\n"
+                        f"• Última Modificación, Registros, Licencia\n\n"
+                        f"_Archivo actualizado desde el portal oficial_"
+                    ),
+                    parse_mode="Markdown"
+                )
+            
+            # Clean up
+            os.unlink(tmp_file.name)
+            await loading_message.delete()
+            
+            logger.info(f"Catalog export completed successfully: {len(all_datasets)} datasets")
+            
+    except Exception as e:
+        logger.error(f"Error in export_catalog_command: {e}", exc_info=True)
+        await loading_message.edit_text(
+            f"❌ Error al generar el catálogo:\n\n"
+            f"```\n{str(e)[:200]}...\n```\n\n"
+            f"Inténtalo más tarde o contacta al administrador.",
+            parse_mode="Markdown"
+        )
 
 
 async def daily_summary(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

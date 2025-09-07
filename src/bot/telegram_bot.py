@@ -18,7 +18,8 @@ from .handlers import (
     user_bookmarks,
     handle_text_search,
     keyword_alerts_command,
-    daily_summary
+    daily_summary,
+    export_catalog_command
 )
 
 logger = logging.getLogger(__name__)
@@ -44,6 +45,7 @@ def create_bot_application() -> Application:
     application.add_handler(CommandHandler("mis_alertas", my_subscriptions_command))
     application.add_handler(CommandHandler("alertas_palabras", keyword_alerts_command))
     application.add_handler(CommandHandler("resumen_diario", daily_summary))
+    application.add_handler(CommandHandler("catalogo", export_catalog_command))
     application.add_handler(CallbackQueryHandler(handle_callback))
     # Handle text messages as search queries (add this last to not interfere with commands)
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_search))

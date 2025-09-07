@@ -115,6 +115,7 @@ Búsqueda inteligente con sinónimos y términos relacionados
 /mis_alertas      # Gestionar suscripciones
 /recientes        # Últimas actualizaciones
 /resumen_diario   # Resúmenes diarios de datasets nuevos
+/catalogo         # Descargar catálogo completo en Excel
 /alertas_palabras # Alertas por palabras clave
 ```
 
@@ -156,6 +157,7 @@ Búsqueda inteligente con sinónimos y términos relacionados
 | `/buscar` | Buscar por palabras clave | `/buscar hospital` |
 | `/recientes` | Datasets actualizados recientemente | - |
 | `/resumen_diario` | Ver resúmenes diarios de datasets nuevos | - |
+| `/catalogo` | Descargar catálogo completo en Excel | - |
 | `/estadisticas` | Resumen general del portal | - |
 | `/favoritos` | Tus datasets guardados | - |
 | `/mis_alertas` | Gestionar suscripciones | - |
