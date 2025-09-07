@@ -2175,15 +2175,20 @@ async def export_catalog_command(update: Update, context: ContextTypes.DEFAULT_T
         logger.info("Starting catalog export...")
         all_datasets = []
         offset = 0
-        limit = 1000
+        limit = 100  # Smaller batches for stability
+        max_datasets = 1000  # Limit to prevent timeouts
         
         while True:
+            logger.info(f"Fetching batch: offset={offset}, limit={limit}")
             batch_datasets, total_estimate = await api_client.get_datasets(
                 limit=limit, 
                 offset=offset
             )
             
+            logger.info(f"Got {len(batch_datasets)} datasets in this batch")
+            
             if not batch_datasets:
+                logger.info("No more datasets, stopping")
                 break
                 
             all_datasets.extend(batch_datasets)
@@ -2198,11 +2203,12 @@ async def export_catalog_command(update: Update, context: ContextTypes.DEFAULT_T
             
             # If we got fewer than the limit, we're at the end
             if len(batch_datasets) < limit:
+                logger.info(f"Got {len(batch_datasets)} < {limit}, assuming end of data")
                 break
             
-            # Safety check
-            if offset > 50000:
-                logger.warning(f"Reached maximum offset {offset}, stopping")
+            # Safety check to prevent infinite loops and timeouts
+            if len(all_datasets) >= max_datasets:
+                logger.warning(f"Reached maximum dataset limit {max_datasets}, stopping")
                 break
         
         logger.info(f"Downloaded {len(all_datasets)} datasets for catalog export")
@@ -2213,19 +2219,31 @@ async def export_catalog_command(update: Update, context: ContextTypes.DEFAULT_T
         catalog_data = []
         for dataset in all_datasets:
             catalog_data.append({
-                'ID': dataset.dataset_id,
-                'Título': dataset.title,
-                'Descripción': dataset.description,
-                'Editor': dataset.publisher,
-                'Temas': ', '.join(dataset.themes) if dataset.themes else '',
-                'Palabras Clave': ', '.join(dataset.keywords) if dataset.keywords else '',
-                'Última Modificación': dataset.modified,
-                'Registros': dataset.records_count,
-                'Licencia': dataset.license
+                'ID': dataset.dataset_id or '',
+                'Título': dataset.title or 'Sin título',
+                'Descripción': dataset.description or 'Sin descripción',
+                'Editor': dataset.publisher or 'Sin editor',
+                'Temas': ', '.join(dataset.themes) if dataset.themes else 'Sin temas',
+                'Palabras Clave': ', '.join(dataset.keywords) if dataset.keywords else 'Sin palabras clave',
+                'Última Modificación': dataset.modified or 'Sin fecha',
+                'Registros': dataset.records_count if dataset.records_count is not None else 0,
+                'Licencia': dataset.license or 'Sin licencia'
             })
+            
+        logger.info(f"Prepared {len(catalog_data)} rows for Excel export")
         
         # Create DataFrame
         df = pd.DataFrame(catalog_data)
+        logger.info(f"Created DataFrame with shape: {df.shape}")
+        logger.info(f"DataFrame columns: {list(df.columns)}")
+        
+        if df.empty:
+            logger.error("DataFrame is empty!")
+            await loading_message.edit_text("❌ Error: No hay datos para exportar.")
+            return
+        
+        # Show sample data
+        logger.info(f"Sample data from first row: {df.iloc[0].to_dict()}")
         
         # Create Excel file in memory
         with tempfile.NamedTemporaryFile(suffix='.xlsx', delete=False) as tmp_file:
@@ -2251,6 +2269,13 @@ async def export_catalog_command(update: Update, context: ContextTypes.DEFAULT_T
             
             current_date = datetime.now().strftime("%Y-%m-%d")
             filename = f"catalogo_datos_abiertos_cyl_{current_date}.xlsx"
+            
+            # Check file size before sending
+            file_size = os.path.getsize(tmp_file.name)
+            logger.info(f"Excel file created with size: {file_size} bytes")
+            
+            if file_size < 1000:  # Less than 1KB is suspicious
+                logger.warning(f"Excel file seems too small: {file_size} bytes")
             
             with open(tmp_file.name, 'rb') as file:
                 await update.message.reply_document(
