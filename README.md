@@ -111,9 +111,11 @@ Búsqueda inteligente con sinónimos y términos relacionados
 
 ### **Paso 5: Gestionar** (Opcional)
 ```
-/favoritos     # Tus datasets guardados
-/mis_alertas   # Gestionar suscripciones
-/recientes     # Últimas actualizaciones
+/favoritos        # Tus datasets guardados
+/mis_alertas      # Gestionar suscripciones
+/recientes        # Últimas actualizaciones
+/resumen_diario   # Resúmenes diarios de datasets nuevos
+/alertas_palabras # Alertas por palabras clave
 ```
 
 ---
@@ -127,6 +129,17 @@ Búsqueda inteligente con sinónimos y términos relacionados
 ### **Suscríbete a datasets específicos**  
 - Te avisamos cuando se actualicen datos concretos
 - Ejemplo: "Lista de hospitales de León actualizada"
+
+### **Alertas por palabras clave**
+- Crea alertas personalizadas con `/alertas_palabras`
+- Recibe notificaciones cuando aparezcan datasets que contengan tus términos
+- Ejemplo: alerta para "hospital", "educación", "turismo rural"
+
+### **Resúmenes diarios automáticos**
+- Sistema automático que detecta datasets completamente nuevos cada día
+- Se ejecuta diariamente a las 9:00 AM
+- Consulta resúmenes históricos con `/resumen_diario`
+- Diferencia entre datasets nuevos y actualizaciones
 
 ### **Gestión simple**
 - `+` para suscribirte directamente desde cualquier dataset
@@ -142,9 +155,11 @@ Búsqueda inteligente con sinónimos y términos relacionados
 | `/start` | Ver todas las categorías | - |
 | `/buscar` | Buscar por palabras clave | `/buscar hospital` |
 | `/recientes` | Datasets actualizados recientemente | - |
+| `/resumen_diario` | Ver resúmenes diarios de datasets nuevos | - |
 | `/estadisticas` | Resumen general del portal | - |
 | `/favoritos` | Tus datasets guardados | - |
 | `/mis_alertas` | Gestionar suscripciones | - |
+| `/alertas_palabras` | Crear alertas por palabras clave | - |
 | `/help` | Ayuda completa | - |
 
 ---
@@ -322,6 +337,25 @@ CREATE TABLE bookmarks (
     user_id INTEGER REFERENCES users(id),
     dataset_id VARCHAR(255) NOT NULL,
     dataset_title TEXT,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Datasets conocidos para resúmenes diarios
+CREATE TABLE known_datasets (
+    id SERIAL PRIMARY KEY,
+    dataset_id VARCHAR(255) UNIQUE NOT NULL,
+    title VARCHAR(500),
+    publisher VARCHAR(255),
+    themes TEXT, -- JSON serialized
+    first_seen TIMESTAMP DEFAULT NOW()
+);
+
+-- Resúmenes diarios
+CREATE TABLE daily_summaries (
+    id SERIAL PRIMARY KEY,
+    date VARCHAR(10) UNIQUE NOT NULL, -- YYYY-MM-DD
+    new_datasets_count INTEGER DEFAULT 0,
+    new_datasets TEXT, -- JSON serialized
     created_at TIMESTAMP DEFAULT NOW()
 );
 ```

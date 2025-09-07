@@ -1832,9 +1832,11 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         "🏠 /start - Mostrar categorías y comenzar exploración\n"
         "🔍 /buscar [término] - Buscar datasets por texto\n"
         "🕒 /recientes - Ver datasets actualizados recientemente\n"
+        "📅 /resumen_diario - Ver resúmenes diarios de datasets nuevos\n"
         "📈 /estadisticas - Ver estadísticas generales\n"
         "⭐ /favoritos - Ver tus datasets favoritos guardados\n"
         "🔔 /mis_alertas - Ver y gestionar tus suscripciones\n"
+        "🔤 /alertas_palabras - Crear alertas por palabras clave\n"
         "❓ /help - Mostrar esta ayuda\n\n"
         
         "🎯 <b>Cómo usar el bot:</b>\n"
@@ -1879,9 +1881,11 @@ async def show_help_callback(query, context) -> None:
         "🏠 /start - Mostrar categorías y comenzar exploración\n"
         "🔍 /buscar [término] - Buscar datasets por texto\n"
         "🕒 /recientes - Ver datasets actualizados recientemente\n"
+        "📅 /resumen_diario - Ver resúmenes diarios de datasets nuevos\n"
         "📈 /estadisticas - Ver estadísticas generales\n"
         "⭐ /favoritos - Ver tus datasets favoritos guardados\n"
         "🔔 /mis_alertas - Ver y gestionar tus suscripciones\n"
+        "🔤 /alertas_palabras - Crear alertas por palabras clave\n"
         "❓ /help - Mostrar esta ayuda\n\n"
         
         "🎯 <b>Cómo usar el bot:</b>\n"
