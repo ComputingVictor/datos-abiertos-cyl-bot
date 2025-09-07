@@ -93,6 +93,33 @@ class ThemeSnapshot(Base):
         return f"<ThemeSnapshot(theme={self.theme_name}, count={self.dataset_count})>"
 
 
+class KnownDataset(Base):
+    __tablename__ = "known_datasets"
+    
+    id = Column(Integer, primary_key=True)
+    dataset_id = Column(String(255), unique=True, nullable=False, index=True)
+    first_seen = Column(DateTime, default=datetime.utcnow)
+    title = Column(String(500))
+    publisher = Column(String(255))
+    themes = Column(Text)  # JSON serialized list
+    
+    def __repr__(self) -> str:
+        return f"<KnownDataset(dataset_id={self.dataset_id}, first_seen={self.first_seen})>"
+
+
+class DailySummary(Base):
+    __tablename__ = "daily_summaries"
+    
+    id = Column(Integer, primary_key=True)
+    date = Column(String(10), unique=True, nullable=False, index=True)  # YYYY-MM-DD format
+    new_datasets_count = Column(Integer, default=0)
+    new_datasets = Column(Text)  # JSON serialized list of new dataset info
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    def __repr__(self) -> str:
+        return f"<DailySummary(date={self.date}, new_datasets_count={self.new_datasets_count})>"
+
+
 class Bookmark(Base):
     __tablename__ = "bookmarks"
 

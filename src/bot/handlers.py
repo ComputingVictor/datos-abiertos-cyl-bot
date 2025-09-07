@@ -397,6 +397,8 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         elif data.startswith("export_menu:"):
             dataset_id = data.split(":", 1)[1]
             await show_export_menu(query, context, dataset_id)
+        elif data.startswith("daily_summary:"):
+            await handle_daily_summary_callback(query, context)
         else:
             keyboard = InlineKeyboardMarkup([
                 [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
@@ -2127,5 +2129,146 @@ async def handle_text_search(update: Update, context: ContextTypes.DEFAULT_TYPE)
     except Exception as e:
         logger.error(f"Error in handle_text_search: {e}")
         await update.message.reply_text("❌ Error al realizar la búsqueda. Intenta nuevamente.")
+
+
+async def daily_summary(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Show daily summary of new datasets."""
+    try:
+        from datetime import date, timedelta
+        from ..services.daily_summary import DailySummaryService
+        
+        daily_service = DailySummaryService()
+        
+        # Get date from command args or default to today
+        target_date = date.today()
+        if context.args:
+            try:
+                # Try to parse date in YYYY-MM-DD format
+                date_str = context.args[0]
+                target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                await update.message.reply_text(
+                    "❌ Formato de fecha inválido. Usa YYYY-MM-DD (ejemplo: 2025-09-07)"
+                )
+                return
+        
+        # Get or create daily summary
+        summary = await daily_service.get_daily_summary(target_date)
+        
+        if not summary:
+            # Try to create summary for the date
+            result = await daily_service.discover_and_track_new_datasets(target_date)
+            summary = {
+                'date': result['date'],
+                'new_datasets_count': result['new_datasets_count'],
+                'new_datasets': result.get('new_datasets', [])
+            }
+        
+        # Format and send message
+        message = daily_service.format_daily_summary_message(summary)
+        
+        # Create keyboard with recent days navigation
+        keyboard = []
+        today = date.today()
+        recent_dates = [today - timedelta(days=i) for i in range(7)]
+        
+        # Create buttons for last 7 days (2 rows)
+        for i in range(0, 7, 4):
+            row = []
+            for j in range(i, min(i + 4, 7)):
+                date_obj = recent_dates[j]
+                date_str = date_obj.strftime('%Y-%m-%d')
+                label = "Hoy" if date_obj == today else f"{date_obj.day}/{date_obj.month}"
+                row.append(InlineKeyboardButton(label, callback_data=f"daily_summary:{date_str}"))
+            keyboard.append(row)
+        
+        # Add refresh button
+        keyboard.append([
+            InlineKeyboardButton("🔄 Actualizar", callback_data=f"daily_summary:{target_date.strftime('%Y-%m-%d')}")
+        ])
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await update.message.reply_text(
+            message,
+            parse_mode="Markdown",
+            reply_markup=reply_markup
+        )
+        
+        # Close service
+        await daily_service.close()
+        
+    except Exception as e:
+        logger.error(f"Error in daily_summary: {e}")
+        await update.message.reply_text("❌ Error al cargar el resumen diario.")
+
+
+async def handle_daily_summary_callback(query, context) -> None:
+    """Handle daily summary callback."""
+    try:
+        from datetime import datetime
+        from ..services.daily_summary import DailySummaryService
+        
+        # Extract date from callback data
+        _, date_str = query.data.split(":")
+        target_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+        
+        daily_service = DailySummaryService()
+        
+        # Get summary for the date
+        summary = await daily_service.get_daily_summary(target_date)
+        
+        if not summary:
+            # Try to create summary
+            result = await daily_service.discover_and_track_new_datasets(target_date)
+            summary = {
+                'date': result['date'],
+                'new_datasets_count': result['new_datasets_count'],
+                'new_datasets': result.get('new_datasets', [])
+            }
+        
+        # Format message
+        message = daily_service.format_daily_summary_message(summary)
+        
+        # Create keyboard with navigation
+        keyboard = []
+        from datetime import date, timedelta
+        today = date.today()
+        recent_dates = [today - timedelta(days=i) for i in range(7)]
+        
+        # Create buttons for last 7 days
+        for i in range(0, 7, 4):
+            row = []
+            for j in range(i, min(i + 4, 7)):
+                date_obj = recent_dates[j]
+                date_obj_str = date_obj.strftime('%Y-%m-%d')
+                label = "Hoy" if date_obj == today else f"{date_obj.day}/{date_obj.month}"
+                
+                # Highlight current selection
+                if date_obj == target_date:
+                    label = f"• {label} •"
+                
+                row.append(InlineKeyboardButton(label, callback_data=f"daily_summary:{date_obj_str}"))
+            keyboard.append(row)
+        
+        # Add refresh button
+        keyboard.append([
+            InlineKeyboardButton("🔄 Actualizar", callback_data=f"daily_summary:{date_str}")
+        ])
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await query.edit_message_text(
+            message,
+            parse_mode="Markdown",
+            reply_markup=reply_markup
+        )
+        
+        # Close service
+        await daily_service.close()
+        
+    except Exception as e:
+        logger.error(f"Error in handle_daily_summary_callback: {e}")
+        await query.edit_message_text("❌ Error al cargar el resumen diario.")
 
 
