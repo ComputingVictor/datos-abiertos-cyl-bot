@@ -488,12 +488,17 @@ async def show_datasets(query, context, theme_name: str, page: int = 0) -> None:
     try:
         logger.info(f"Requesting datasets for theme='{theme_name}', page={page}")
         # Use the global API client instance to maintain cache consistency
-        datasets, total_count = await api_client.get_datasets(
+        datasets, _ = await api_client.get_datasets(
             theme=theme_name,
             limit=settings.datasets_per_page,
             offset=page * settings.datasets_per_page
         )
-        logger.info(f"Received {len(datasets)} datasets out of {total_count} total")
+        
+        # Get the real total count from facets (which are accurate)
+        themes = await api_client.get_themes()
+        real_total_count = next((t.count for t in themes if t.name == theme_name), 0)
+        
+        logger.info(f"Received {len(datasets)} datasets out of {real_total_count} total (from facets)")
         
         if not datasets:
             keyboard = InlineKeyboardMarkup([
@@ -507,7 +512,7 @@ async def show_datasets(query, context, theme_name: str, page: int = 0) -> None:
             return
         
         keyboard = create_datasets_keyboard(datasets, theme_name, page, settings.datasets_per_page)
-        total_pages = (total_count + settings.datasets_per_page - 1) // settings.datasets_per_page
+        total_pages = (real_total_count + settings.datasets_per_page - 1) // settings.datasets_per_page
         
         # Show all datasets with full titles in the message
         dataset_list = []
@@ -520,7 +525,7 @@ async def show_datasets(query, context, theme_name: str, page: int = 0) -> None:
         
         message = (
             f"📋 *{clean_theme_name}*\n\n"
-            f"📊 Total: {total_count} datasets\n"
+            f"📊 Total: {real_total_count} datasets\n"
             f"📄 Página {page + 1} de {total_pages} ({len(datasets)} datasets)\n\n"
             f"**Datasets disponibles:**\n" + "\n\n".join(dataset_list) + "\n\n"
             f"_Haz clic en el número correspondiente para ver detalles._"
