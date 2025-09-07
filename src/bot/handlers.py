@@ -1437,9 +1437,9 @@ async def recent_datasets(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             # Show modification date if available
             if dataset.metadata_processed and dataset.metadata_processed != "Dato no disponible":
                 friendly_date = format_user_friendly_date(dataset.metadata_processed)
-                recent_list.append(f"{i}. {title}\n   _Actualizado: {friendly_date}_")
+                recent_list.append(f"{i}. *{title}*\n   _Actualizado: {friendly_date}_")
             else:
-                recent_list.append(f"{i}. {title}")
+                recent_list.append(f"{i}. *{title}*")
         
         message = (
             f"🕒 *Datasets Actualizados Recientemente*\n\n"
@@ -1483,9 +1483,9 @@ async def handle_recent_datasets_callback(query, context) -> None:
             # Show modification date if available
             if dataset.metadata_processed and dataset.metadata_processed != "Dato no disponible":
                 friendly_date = format_user_friendly_date(dataset.metadata_processed)
-                recent_list.append(f"{i}. {title}\n   _Actualizado: {friendly_date}_")
+                recent_list.append(f"{i}. *{title}*\n   _Actualizado: {friendly_date}_")
             else:
-                recent_list.append(f"{i}. {title}")
+                recent_list.append(f"{i}. *{title}*")
         
         message = (
             f"🕒 *Datasets Actualizados Recientemente*\n\n"

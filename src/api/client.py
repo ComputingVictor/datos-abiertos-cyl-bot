@@ -42,19 +42,24 @@ def clean_html_text(text: str) -> str:
 
 
 def format_user_friendly_date(date_string: str) -> str:
-    """Convert API date format to user-friendly format."""
+    """Convert API date format to user-friendly format with time."""
     if not date_string or date_string == "Dato no disponible":
         return "Dato no disponible"
     
     try:
         # Parse ISO format: 2025-08-12T11:14:26.781000+00:00
         if 'T' in date_string:
-            # Remove timezone and microseconds for simpler parsing
+            # Extract date and time parts
             date_part = date_string.split('T')[0]
+            time_part = date_string.split('T')[1].split('.')[0]  # Remove microseconds
+            time_part = time_part.split('+')[0].split('-')[0]  # Remove timezone
+            
             dt = datetime.strptime(date_part, '%Y-%m-%d')
+            time_obj = datetime.strptime(time_part, '%H:%M:%S').time()
         else:
             # Handle simple date format: 2025-08-12
             dt = datetime.strptime(date_string[:10], '%Y-%m-%d')
+            time_obj = None
         
         # Format to Spanish date format
         months = [
@@ -66,7 +71,11 @@ def format_user_friendly_date(date_string: str) -> str:
         month = months[dt.month - 1]
         year = dt.year
         
-        return f"{day} de {month} de {year}"
+        # Include time if available and not midnight
+        if time_obj and (time_obj.hour != 0 or time_obj.minute != 0):
+            return f"{day} de {month} de {year} a las {time_obj.hour:02d}:{time_obj.minute:02d}"
+        else:
+            return f"{day} de {month} de {year}"
         
     except (ValueError, IndexError) as e:
         logger.warning(f"Could not parse date '{date_string}': {e}")

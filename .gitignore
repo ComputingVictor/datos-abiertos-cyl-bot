@@ -215,3 +215,4 @@ sandbox/
 update_docker.sh
 data/jcyl_bot.db
 data/jcyl_bot.db
+src/api/__pycache__/

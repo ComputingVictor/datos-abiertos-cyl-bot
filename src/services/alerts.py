@@ -5,7 +5,7 @@ import logging
 from datetime import datetime
 from typing import List, Set, Dict, Any, Optional
 
-from telegram import Bot
+from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 
 from ..api import JCYLAPIClient
 from ..models import DatabaseManager, DatasetSnapshot, ThemeSnapshot
@@ -14,6 +14,135 @@ from .config import get_settings
 logger = logging.getLogger(__name__)
 
 settings = get_settings()
+
+
+def clean_dataset_title(title: str) -> str:
+    """Clean dataset title by removing redundant text."""
+    if not title:
+        return "Sin título"
+    
+    # Remove common redundant phrases
+    cleaned_title = title.strip()
+    
+    # List of phrases to remove (case insensitive)
+    phrases_to_remove = [
+        "de la Junta de Castilla y León",
+        "de la Junta de Castilla y Leon",
+        "Junta de Castilla y León",
+        "Junta de Castilla y Leon",
+        "de Castilla y León",
+        "de Castilla y Leon"
+    ]
+    
+    for phrase in phrases_to_remove:
+        # Remove at the end of the title
+        if cleaned_title.lower().endswith(phrase.lower()):
+            cleaned_title = cleaned_title[:-len(phrase)].strip()
+        
+        # Remove in the middle or beginning, being careful with spacing
+        cleaned_title = cleaned_title.replace(f" {phrase} ", " ")
+        cleaned_title = cleaned_title.replace(f" {phrase}", "")
+        cleaned_title = cleaned_title.replace(f"{phrase} ", "")
+        
+        # Case insensitive replacements
+        import re
+        cleaned_title = re.sub(re.escape(phrase), "", cleaned_title, flags=re.IGNORECASE)
+    
+    # Clean up extra spaces and punctuation
+    cleaned_title = re.sub(r'\s+', ' ', cleaned_title)  # Multiple spaces to single
+    cleaned_title = cleaned_title.strip(' ,-')  # Remove trailing spaces, commas, dashes
+    
+    return cleaned_title if cleaned_title else "Sin título"
+
+
+def clean_publisher_name(publisher: str) -> str:
+    """Clean publisher name by removing redundant text."""
+    if not publisher:
+        return ""
+    
+    # Remove common redundant phrases
+    cleaned_publisher = publisher.strip()
+    
+    # List of phrases to remove (case insensitive)
+    phrases_to_remove = [
+        "Junta de Castilla y León",
+        "Junta de Castilla y Leon",
+        "de la Junta de Castilla y León", 
+        "de la Junta de Castilla y Leon",
+        "- Junta de Castilla y León",
+        "- Junta de Castilla y Leon"
+    ]
+    
+    for phrase in phrases_to_remove:
+        # Case insensitive replacements
+        import re
+        cleaned_publisher = re.sub(re.escape(phrase), "", cleaned_publisher, flags=re.IGNORECASE)
+    
+    # Clean up extra spaces and punctuation
+    cleaned_publisher = re.sub(r'\s+', ' ', cleaned_publisher)  # Multiple spaces to single
+    cleaned_publisher = cleaned_publisher.strip(' ,-')  # Remove trailing spaces, commas, dashes
+    
+    # If publisher becomes empty or too short after cleaning, return a generic name
+    if not cleaned_publisher or len(cleaned_publisher.strip()) < 3:
+        return "Administración Pública"
+    
+    return cleaned_publisher
+
+
+def format_date_for_user(date_string: str) -> str:
+    """Format a date string to be user-friendly in Spanish."""
+    if not date_string or date_string == "Dato no disponible":
+        return "Sin fecha disponible"
+    
+    try:
+        # Try different date formats
+        date_obj = None
+        
+        # Format: dd/mm/yyyy
+        if "/" in date_string:
+            try:
+                date_obj = datetime.strptime(date_string, "%d/%m/%Y")
+            except ValueError:
+                try:
+                    date_obj = datetime.strptime(date_string, "%Y/%m/%d")
+                except ValueError:
+                    pass
+        
+        # Format: yyyy-mm-dd or ISO format
+        elif "-" in date_string:
+            try:
+                if "T" in date_string:
+                    # ISO format with time
+                    date_string_clean = date_string.replace("Z", "+00:00")
+                    date_obj = datetime.fromisoformat(date_string_clean)
+                else:
+                    # Simple date format
+                    date_obj = datetime.strptime(date_string, "%Y-%m-%d")
+            except ValueError:
+                pass
+        
+        if date_obj:
+            # Format as "DD de MONTH de YYYY a las HH:MM" or just "DD de MONTH de YYYY"
+            months = [
+                "enero", "febrero", "marzo", "abril", "mayo", "junio",
+                "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"
+            ]
+            
+            day = date_obj.day
+            month = months[date_obj.month - 1]
+            year = date_obj.year
+            
+            if date_obj.hour != 0 or date_obj.minute != 0:
+                # Include time if it's not midnight
+                return f"{day} de {month} de {year} a las {date_obj.hour:02d}:{date_obj.minute:02d}"
+            else:
+                return f"{day} de {month} de {year}"
+        
+        # If we can't parse it, return the original but cleaned up
+        return date_string.strip()
+        
+    except Exception:
+        return date_string.strip() if date_string else "Sin fecha disponible"
 
 
 class AlertService:
@@ -74,7 +203,7 @@ class AlertService:
     async def _check_single_theme(self, theme_name: str) -> None:
         """Check changes for a single theme."""
         # Get current datasets in theme
-        datasets = await self.api_client.get_datasets(theme=theme_name, limit=1000)  # Get all
+        datasets, _ = await self.api_client.get_datasets(theme=theme_name, limit=1000)  # Get all
         current_dataset_ids = set(d.dataset_id for d in datasets)
         
         # Get latest snapshot
@@ -196,8 +325,82 @@ class AlertService:
         
         return changed
 
+    async def _send_paginated_notifications(
+        self, 
+        subscribers: List, 
+        datasets: List, 
+        title: str,
+        notification_type: str,
+        theme_name: str = None
+    ) -> None:
+        """Send notifications with pagination for better readability."""
+        datasets_per_page = 3  # Show 3 datasets per message
+        total_pages = (len(datasets) + datasets_per_page - 1) // datasets_per_page
+        
+        for page in range(total_pages):
+            start_idx = page * datasets_per_page
+            end_idx = min((page + 1) * datasets_per_page, len(datasets))
+            page_datasets = datasets[start_idx:end_idx]
+            
+            # Create message for this page
+            if total_pages > 1:
+                message = f"{title} ({page + 1}/{total_pages})\n\n"
+            else:
+                message = f"{title}\n\n"
+            
+            for dataset in page_datasets:
+                # Clean and format title - show full title in bold without truncating
+                title_text = clean_dataset_title(dataset.title)
+                
+                # Clean publisher
+                publisher_text = clean_publisher_name(dataset.publisher)
+                
+                # Format date
+                formatted_date = format_date_for_user(dataset.modified)
+                
+                message += f"📄 *{title_text}*\n"
+                if publisher_text and publisher_text != "Administración Pública":
+                    message += f"🏢 {publisher_text}\n"
+                message += f"📅 *Actualizado:* {formatted_date}\n\n"
+            
+            # Add navigation info for multiple pages
+            if total_pages > 1:
+                if page == 0:
+                    message += f"⏭️ Página {page + 1} de {total_pages} - Continúa en el siguiente mensaje..."
+                elif page == total_pages - 1:
+                    message += f"📋 Total: {len(datasets)} datasets nuevos"
+                else:
+                    message += f"📄 Página {page + 1} de {total_pages} - Continúa..."
+            else:
+                message += f"📋 Total: {len(datasets)} datasets nuevos"
+            
+            message += "\n\nUsa /start para explorar los datasets."
+            
+            # Send to all subscribers
+            for subscription in subscribers:
+                session = self.db_manager.get_session()
+                try:
+                    from ..models import User
+                    user = session.query(User).filter_by(id=subscription.user_id).first()
+                    if user:
+                        await self.bot.send_message(
+                            chat_id=user.telegram_id,
+                            text=message,
+                            parse_mode="Markdown"
+                        )
+                        
+                        # Small delay between messages to avoid flooding
+                        if page < total_pages - 1:
+                            import asyncio
+                            await asyncio.sleep(1)
+                            
+                except Exception as e:
+                    logger.error(f"Error sending notification to user {subscription.user_id}: {e}")
+                finally:
+                    session.close()
+
     async def _notify_new_datasets_in_theme(self, theme_name: str, new_dataset_ids: Set[str]) -> None:
-        """Notify users about new datasets in a theme."""
+        """Notify users about new datasets in a theme with pagination."""
         subscribers = self.db_manager.get_subscriptions_by_type("theme", theme_name)
         
         if not subscribers:
@@ -205,9 +408,9 @@ class AlertService:
         
         logger.info(f"Notifying {len(subscribers)} users about {len(new_dataset_ids)} new datasets in theme '{theme_name}'")
         
-        # Get dataset details
+        # Get dataset details for all new datasets
         datasets = []
-        for dataset_id in list(new_dataset_ids)[:5]:  # Limit to first 5
+        for dataset_id in list(new_dataset_ids):
             try:
                 dataset = await self.api_client.get_dataset_info(dataset_id)
                 if dataset:
@@ -218,35 +421,17 @@ class AlertService:
         if not datasets:
             return
         
-        # Create message
-        message = f"🆕 *Nuevos datasets en {theme_name}*\n\n"
-        
-        for dataset in datasets:
-            title = dataset.title[:50] + "..." if len(dataset.title) > 50 else dataset.title
-            message += f"📄 *{title}*\n"
-            message += f"🏢 {dataset.publisher}\n"
-            message += f"📅 {dataset.modified}\n\n"
-        
-        if len(new_dataset_ids) > len(datasets):
-            message += f"... y {len(new_dataset_ids) - len(datasets)} más.\n\n"
-        
-        message += "Usa /start para explorar los nuevos datasets."
-        
-        # Send notifications
-        for subscription in subscribers:
-            try:
-                user = self.db_manager.get_session().query(self.db_manager.User).filter_by(id=subscription.user_id).first()
-                if user:
-                    await self.bot.send_message(
-                        chat_id=user.telegram_id,
-                        text=message,
-                        parse_mode="Markdown"
-                    )
-            except Exception as e:
-                logger.error(f"Error sending notification to user {subscription.user_id}: {e}")
+        # Send notifications with pagination
+        await self._send_paginated_notifications(
+            subscribers=subscribers,
+            datasets=datasets,
+            title=f"🆕 *Nuevos datasets en {theme_name}*",
+            notification_type="new_theme_datasets",
+            theme_name=theme_name
+        )
 
     async def _notify_changed_datasets_in_theme(self, theme_name: str, changed_datasets: List) -> None:
-        """Notify users about changed datasets in a theme."""
+        """Notify users about changed datasets in a theme with pagination."""
         subscribers = self.db_manager.get_subscriptions_by_type("theme", theme_name)
         
         if not subscribers:
@@ -254,35 +439,17 @@ class AlertService:
         
         logger.info(f"Notifying {len(subscribers)} users about {len(changed_datasets)} changed datasets in theme '{theme_name}'")
         
-        # Create message
-        message = f"🔄 *Datasets actualizados en {theme_name}*\n\n"
-        
-        for dataset in changed_datasets[:3]:  # Limit to first 3
-            title = dataset.title[:50] + "..." if len(dataset.title) > 50 else dataset.title
-            message += f"📄 *{title}*\n"
-            message += f"🏢 {dataset.publisher}\n"
-            message += f"📅 {dataset.modified}\n\n"
-        
-        if len(changed_datasets) > 3:
-            message += f"... y {len(changed_datasets) - 3} más.\n\n"
-        
-        message += "Usa /start para ver los datasets actualizados."
-        
-        # Send notifications
-        for subscription in subscribers:
-            try:
-                user = self.db_manager.get_session().query(self.db_manager.User).filter_by(id=subscription.user_id).first()
-                if user:
-                    await self.bot.send_message(
-                        chat_id=user.telegram_id,
-                        text=message,
-                        parse_mode="Markdown"
-                    )
-            except Exception as e:
-                logger.error(f"Error sending notification to user {subscription.user_id}: {e}")
+        # Send notifications with pagination
+        await self._send_paginated_notifications(
+            subscribers=subscribers,
+            datasets=changed_datasets,
+            title=f"🔄 *Datasets actualizados en {theme_name}*",
+            notification_type="changed_theme_datasets",
+            theme_name=theme_name
+        )
 
     async def _notify_dataset_changed(self, dataset_id: str, dataset) -> None:
-        """Notify users about specific dataset changes."""
+        """Notify users about specific dataset changes with improved formatting."""
         subscribers = self.db_manager.get_subscriptions_by_type("dataset", dataset_id)
         
         if not subscribers:
@@ -290,21 +457,29 @@ class AlertService:
         
         logger.info(f"Notifying {len(subscribers)} users about changes in dataset '{dataset_id}'")
         
-        # Create message
-        title = dataset.title[:50] + "..." if len(dataset.title) > 50 else dataset.title
-        message = (
-            f"🔄 *Dataset actualizado*\n\n"
-            f"📄 *{title}*\n"
-            f"🏢 {dataset.publisher}\n"
-            f"📅 Modificado: {dataset.modified}\n"
-            f"📊 Registros: {dataset.records_count}\n\n"
+        # Clean and format title, publisher and date
+        title_text = clean_dataset_title(dataset.title)
+        publisher_text = clean_publisher_name(dataset.publisher)
+        formatted_date = format_date_for_user(dataset.modified)
+        
+        # Create message with improved formatting
+        message = f"🔄 *Dataset actualizado*\n\n📄 *{title_text}*\n"
+        
+        if publisher_text and publisher_text != "Administración Pública":
+            message += f"🏢 {publisher_text}\n"
+            
+        message += (
+            f"📅 *Actualizado:* {formatted_date}\n"
+            f"📊 *Registros:* {dataset.records_count:,}\n\n"
             f"Usa /start para ver los detalles actualizados."
         )
         
         # Send notifications
         for subscription in subscribers:
+            session = self.db_manager.get_session()
             try:
-                user = self.db_manager.get_session().query(self.db_manager.User).filter_by(id=subscription.user_id).first()
+                from ..models import User
+                user = session.query(User).filter_by(id=subscription.user_id).first()
                 if user:
                     await self.bot.send_message(
                         chat_id=user.telegram_id,
@@ -313,6 +488,8 @@ class AlertService:
                     )
             except Exception as e:
                 logger.error(f"Error sending notification to user {subscription.user_id}: {e}")
+            finally:
+                session.close()
 
     async def _check_keyword_changes(self) -> None:
         """Check for new datasets matching keyword subscriptions."""
@@ -383,7 +560,7 @@ class AlertService:
             logger.error(f"Error searching for keyword {keyword}: {e}")
 
     async def _notify_keyword_matches(self, keyword: str, matching_datasets: list) -> None:
-        """Notify users about datasets matching their keyword alerts."""
+        """Notify users about datasets matching their keyword alerts with pagination."""
         subscribers = self.db_manager.get_subscriptions_by_type("keyword", keyword)
         
         if not subscribers:
@@ -391,32 +568,14 @@ class AlertService:
         
         logger.info(f"Notifying {len(subscribers)} users about {len(matching_datasets)} datasets matching keyword '{keyword}'")
         
-        # Create message
-        message = f"🔍 *Nuevos datasets con '{keyword}'*\n\n"
-        
-        for dataset in matching_datasets[:3]:  # Limit to first 3
-            title = dataset.title[:50] + "..." if len(dataset.title) > 50 else dataset.title
-            message += f"📄 *{title}*\n"
-            message += f"🏢 {dataset.publisher}\n"
-            message += f"📅 {dataset.modified}\n\n"
-        
-        if len(matching_datasets) > 3:
-            message += f"... y {len(matching_datasets) - 3} más.\n\n"
-        
-        message += "Usa /start para explorar los nuevos datasets."
-        
-        # Send notifications
-        for subscription in subscribers:
-            try:
-                user = self.db_manager.get_session().query(self.db_manager.User).filter_by(id=subscription.user_id).first()
-                if user:
-                    await self.bot.send_message(
-                        chat_id=user.telegram_id,
-                        text=message,
-                        parse_mode="Markdown"
-                    )
-            except Exception as e:
-                logger.error(f"Error sending keyword notification to user {subscription.user_id}: {e}")
+        # Send notifications with pagination
+        await self._send_paginated_notifications(
+            subscribers=subscribers,
+            datasets=matching_datasets,
+            title=f"🔍 *Nuevos datasets con '{keyword}'*",
+            notification_type="keyword_matches",
+            theme_name=None
+        )
 
 
 async def run_alert_check() -> None:
