@@ -662,7 +662,27 @@ async def handle_subscription(query, context) -> None:
     """Handle subscription requests."""
     try:
         data = query.data
+        logger.info(f"Processing subscription callback: {data}")
+        
+        # Handle shortened callbacks
+        if data.startswith("s:"):
+            # Get original callback from mapper
+            from .keyboards import callback_mapper
+            original_data = callback_mapper.get_original_callback(data.split(":", 1)[1])
+            if not original_data:
+                logger.error(f"Could not find original callback for short ID: {data}")
+                await query.edit_message_text("❌ Error: callback no encontrado.")
+                return
+            data = original_data
+            logger.info(f"Resolved short callback to: {data}")
+        
         parts = data.split(":", 2)
+        
+        if len(parts) < 3:
+            logger.error(f"Invalid callback data format: {data}")
+            await query.edit_message_text("❌ Error: formato de datos inválido.")
+            return
+            
         sub_type, sub_id = parts[1], parts[2]
         
         user = query.from_user
