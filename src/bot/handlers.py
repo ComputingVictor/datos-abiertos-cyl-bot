@@ -513,8 +513,8 @@ async def show_datasets(query, context, theme_name: str, page: int = 0) -> None:
         dataset_list = []
         for i, dataset in enumerate(datasets, 1):
             title = clean_text_for_markdown(dataset.title) if dataset.title else "Sin título"
-            # Don't truncate - show full title
-            dataset_list.append(f"{i}. {title}")
+            # Don't truncate - show full title with bold formatting
+            dataset_list.append(f"{i}. *{title}*")
         
         clean_theme_name = clean_text_for_markdown(theme_name)
         
