@@ -299,14 +299,18 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     
     try:
         data = query.data
+        logger.info(f"📞 CALLBACK RECEIVED: {data}")
         
         # Handle short IDs
         if data.startswith("s:"):
             short_id = data[2:]  # Remove "s:" prefix
+            logger.info(f"🔗 Resolving short ID: {short_id}")
             full_data = callback_mapper.get_full_data(short_id)
             if full_data:
                 data = full_data
+                logger.info(f"✅ Resolved to: {data}")
             else:
+                logger.warning(f"❌ Could not resolve short ID: {short_id}")
                 await query.edit_message_text("❌ Enlace expirado. Usa /start para continuar.")
                 return
         
@@ -408,6 +412,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         elif data.startswith("alert_nav:"):
             await handle_alert_navigation(query, context)
         elif data.startswith("download_file:"):
+            logger.info(f"🎯 DOWNLOAD FILE CALLBACK TRIGGERED: {data}")
             await handle_file_download(query, context)
         elif data == "download_menu_header":
             # Ignore the header callback - it's just for display
@@ -2547,148 +2552,135 @@ async def handle_daily_summary_callback(query, context) -> None:
 
 async def handle_file_download(query, context) -> None:
     """Handle file download request and send as attachment."""
+    logger.info("🎯 handle_file_download called!")
     loading_msg = None
+    
     try:
         data = query.data
-        logger.info(f"Processing file download with data: {data}")
+        logger.info(f"📞 Processing file download with data: {data}")
         
-        # Parse callback data: download_file:dataset_id:format:url
+        # Show immediate response
+        await query.answer("⏳ Iniciando descarga...", show_alert=False)
+        
+        # Parse callback data
         parts = data.split(":", 3)
-        logger.info(f"Data parts: {parts}")
+        logger.info(f"📝 Data parts ({len(parts)}): {parts}")
         
         if len(parts) < 4:
-            logger.error(f"Invalid callback data format: {data}")
-            await query.answer("❌ Error en los parámetros de descarga", show_alert=True)
+            logger.error(f"❌ Invalid callback data format: {data}")
+            await context.bot.send_message(
+                chat_id=query.message.chat.id,
+                text="❌ Error: Parámetros de descarga inválidos"
+            )
             return
             
         dataset_id, file_format, file_url = parts[1], parts[2], parts[3]
-        logger.info(f"Download parameters: dataset_id={dataset_id}, format={file_format}, url={file_url}")
+        logger.info(f"✅ Download parameters: dataset_id={dataset_id}, format={file_format}")
         
-        # Show loading message
-        await query.answer("⏳ Descargando archivo...", show_alert=True)
-        loading_msg = await context.bot.send_message(
-            chat_id=query.message.chat.id,
-            text=f"⏳ Descargando archivo {file_format.upper()}..."
-        )
+        # Send loading message
+        try:
+            loading_msg = await context.bot.send_message(
+                chat_id=query.message.chat.id,
+                text=f"⏳ Descargando archivo {file_format.upper()}...\n🔄 Esto puede tomar unos momentos"
+            )
+            logger.info(f"✅ Loading message sent")
+        except Exception as e:
+            logger.error(f"❌ Failed to send loading message: {e}")
         
         # Download the file
-        logger.info(f"Starting download from URL: {file_url}")
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        logger.info(f"⬇️  Downloading from: {file_url}")
+        async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.get(file_url)
             response.raise_for_status()
-            logger.info(f"Download completed, content length: {len(response.content)} bytes")
+            file_data = response.content
             
-            # Get dataset info for filename
-            logger.info(f"Getting dataset info for: {dataset_id}")
-            dataset = await api_client.get_dataset_info(dataset_id)
-            
-            # Clean dataset title for filename
-            safe_title = "".join(c for c in dataset.title if c.isalnum() or c in (' ', '-', '_')).rstrip()
-            safe_title = safe_title[:50]  # Limit length
-            
-            # Create filename
-            filename = f"{safe_title}.{file_format.lower()}"
-            logger.info(f"Generated filename: {filename}")
-            
-            # Create temporary file
-            with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_format.lower()}") as tmp_file:
-                tmp_file.write(response.content)
-                tmp_file_path = tmp_file.name
-            logger.info(f"Created temporary file: {tmp_file_path}")
-            
-            # Determine content type
-            content_types = {
-                'csv': 'text/csv',
-                'json': 'application/json',
-                'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-            }
-            
-            # Send file as document
-            logger.info(f"Sending file as document: {filename}")
-            
-            # Create caption
-            caption = (
-                f"📎 <b>{html.escape(dataset.title)}</b>\n\n"
-                f"📊 Formato: {file_format.upper()}\n"
-                f"📅 Descargado: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+        file_size_mb = len(file_data) / 1024 / 1024
+        logger.info(f"✅ Download completed: {file_size_mb:.2f} MB")
+        
+        # Check size limit
+        if len(file_data) > 50 * 1024 * 1024:  # 50MB limit
+            error_msg = (
+                f"❌ Archivo muy grande ({file_size_mb:.1f} MB).\n"
+                f"Límite de Telegram: 50MB\n\n"
+                f"Usa el enlace web para descargarlo."
             )
-            if dataset.records_count:
-                caption += f"\n📄 Registros: {dataset.records_count:,}"
-            
-            # Check file size (Telegram has a 50MB limit for bots)
-            file_size = os.path.getsize(tmp_file_path)
-            logger.info(f"📏 File size: {file_size} bytes ({file_size/1024/1024:.2f} MB)")
-            
-            if file_size > 50 * 1024 * 1024:  # 50MB limit
-                await loading_msg.edit_text(
-                    f"❌ El archivo es demasiado grande ({file_size/1024/1024:.1f} MB).\n"
-                    f"Telegram tiene un límite de 50MB.\n\n"
-                    f"Puedes descargarlo directamente desde: {file_url}"
-                )
-                os.unlink(tmp_file_path)
-                return
-            
-            # Send document using the file path directly
-            with open(tmp_file_path, 'rb') as file_obj:
-                document_data = file_obj.read()
-            
-            # Use BytesIO to create a proper file-like object  
-            file_stream = io.BytesIO(document_data)
-            file_stream.name = filename
-            
-            logger.info(f"📤 Sending document to chat {query.message.chat.id}...")
-            logger.info(f"📄 Filename: {filename}")
-            logger.info(f"📝 Caption length: {len(caption)} chars")
-            
-            message = await context.bot.send_document(
-                chat_id=query.message.chat.id,
-                document=file_stream,
-                filename=filename,
-                caption=caption,
-                parse_mode='HTML'
-            )
-            
-            logger.info(f"✅ Document sent successfully! Message ID: {message.message_id}")
-            if message.document:
-                logger.info(f"📎 Telegram file_id: {message.document.file_id}")
-                logger.info(f"📏 Telegram file_size: {message.document.file_size}")
+            if loading_msg:
+                await loading_msg.edit_text(error_msg)
             else:
-                logger.warning("⚠️  No document object in response - this might indicate an issue!")
+                await context.bot.send_message(chat_id=query.message.chat.id, text=error_msg)
+            return
             
-            # Clean up
-            os.unlink(tmp_file_path)
-            await loading_msg.delete()
-            
-            logger.info(f"File download completed: {dataset_id} ({file_format})")
-            
+        # Get dataset info
+        logger.info(f"📋 Getting dataset info...")
+        try:
+            dataset = await api_client.get_dataset_info(dataset_id)
+            title = dataset.title if dataset else "Dataset"
+            records = dataset.records_count if dataset and dataset.records_count else None
+        except:
+            title = "Dataset"
+            records = None
+        
+        # Create filename
+        safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '-', '_')).rstrip()[:40]
+        filename = f"{safe_title}.{file_format.lower()}" if safe_title else f"dataset.{file_format.lower()}"
+        logger.info(f"📝 Filename: {filename}")
+        
+        # Create caption
+        caption = (
+            f"📎 <b>{html.escape(title)}</b>\n\n"
+            f"📊 Formato: {file_format.upper()}\n"
+            f"📅 {datetime.now().strftime('%d/%m/%Y %H:%M')}\n"
+            f"💾 Tamaño: {file_size_mb:.1f} MB"
+        )
+        if records:
+            caption += f"\n📄 Registros: {records:,}"
+        
+        # Create file stream
+        file_stream = io.BytesIO(file_data)
+        file_stream.name = filename
+        
+        # Send document
+        logger.info(f"📤 Sending document...")
+        message = await context.bot.send_document(
+            chat_id=query.message.chat.id,
+            document=file_stream,
+            filename=filename,
+            caption=caption,
+            parse_mode='HTML'
+        )
+        
+        logger.info(f"✅ Document sent! Message ID: {message.message_id}")
+        if message.document:
+            logger.info(f"📎 File ID: {message.document.file_id}")
+        
+        # Clean up
+        if loading_msg:
+            try:
+                await loading_msg.delete()
+            except:
+                pass
+                
+        logger.info(f"🎉 Download completed successfully!")
+        
     except httpx.HTTPStatusError as e:
-        logger.error(f"HTTP error downloading file: {e}")
+        logger.error(f"❌ HTTP error: {e}")
+        error_msg = "❌ Error al descargar: archivo no disponible"
         if loading_msg:
-            try:
-                await loading_msg.edit_text("❌ Error al descargar el archivo. El enlace puede estar roto.")
-            except:
-                pass
-    except httpx.TimeoutException:
-        logger.error("Timeout downloading file")
-        if loading_msg:
-            try:
-                await loading_msg.edit_text("❌ La descarga tardó demasiado tiempo. Inténtalo más tarde.")
-            except:
-                pass
-    except Exception as e:
-        logger.error(f"Error in handle_file_download: {e}", exc_info=True)
-        if loading_msg:
-            try:
-                await loading_msg.edit_text(f"❌ Error al descargar el archivo: {str(e)[:100]}")
-            except:
-                pass
+            await loading_msg.edit_text(error_msg)
         else:
-            try:
-                await context.bot.send_message(
-                    chat_id=query.message.chat.id,
-                    text=f"❌ Error al descargar el archivo: {str(e)[:100]}"
-                )
-            except:
-                pass
-
+            await context.bot.send_message(chat_id=query.message.chat.id, text=error_msg)
+    except httpx.TimeoutException:
+        logger.error("❌ Download timeout")
+        error_msg = "❌ La descarga tardó demasiado. Inténtalo más tarde."
+        if loading_msg:
+            await loading_msg.edit_text(error_msg)
+        else:
+            await context.bot.send_message(chat_id=query.message.chat.id, text=error_msg)
+    except Exception as e:
+        logger.error(f"❌ Download handler error: {e}", exc_info=True)
+        error_msg = f"❌ Error en la descarga: {str(e)[:100]}"
+        if loading_msg:
+            await loading_msg.edit_text(error_msg)
+        else:
+            await context.bot.send_message(chat_id=query.message.chat.id, text=error_msg)
 
