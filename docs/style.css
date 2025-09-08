@@ -314,23 +314,87 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 1.2em;
 }
 
-/* Phone Mockup */
+/* iPhone-style Phone Mockup */
 .phone-mockup {
-    width: 300px;
-    height: 600px;
-    background: #000;
-    border-radius: 36px;
-    padding: 8px;
+    width: 320px;
+    height: 650px;
+    background: linear-gradient(145deg, #1a1a1a, #000);
+    border-radius: 48px;
+    padding: 6px;
     margin: 0 auto;
-    box-shadow: var(--shadow-heavy);
+    box-shadow: 
+        0 0 0 2px rgba(255, 255, 255, 0.1),
+        0 20px 40px rgba(0, 0, 0, 0.4),
+        0 50px 100px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
     position: relative;
+}
+
+.phone-mockup::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 28px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 3;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.phone-mockup::after {
+    content: '';
+    position: absolute;
+    top: 26px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 15px;
+    height: 15px;
+    background: #333;
+    border-radius: 50%;
+    z-index: 4;
+}
+
+/* Side buttons */
+.phone-mockup {
+    position: relative;
+}
+
+.phone-mockup:has(.chat-interface) {
+    position: relative;
+}
+
+.phone-mockup .phone-screen::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 120px;
+    width: 4px;
+    height: 60px;
+    background: linear-gradient(180deg, #1a1a1a, #000);
+    border-radius: 0 2px 2px 0;
+    z-index: 5;
+}
+
+.phone-mockup .phone-screen::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 100px;
+    width: 4px;
+    height: 100px;
+    background: linear-gradient(180deg, #1a1a1a, #000);
+    border-radius: 2px 0 0 2px;
+    z-index: 5;
 }
 
 .phone-screen {
     width: 100%;
     height: 100%;
     background: #fff;
-    border-radius: 28px;
+    border-radius: 42px;
     overflow: hidden;
     position: relative;
 }
@@ -343,7 +407,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .chat-header {
     background: var(--primary-color);
-    padding: 60px 20px 20px;
+    padding: 70px 20px 20px;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -791,7 +855,7 @@ h1, h2, h3, h4, h5, h6 {
     /* Mejor tamaño del mockup para tablets */
     .phone-mockup {
         width: 280px;
-        height: 560px;
+        height: 580px;
     }
     
     /* Asegurar que se vea completo en tablets */
@@ -807,7 +871,7 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 1024px) and (min-width: 769px) {
     .phone-mockup {
         width: 300px;
-        height: 600px;
+        height: 610px;
     }
     
     .hero-visual {
@@ -833,7 +897,7 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 834px) and (min-width: 769px) and (orientation: portrait) {
     .phone-mockup {
         width: 280px;
-        height: 560px;
+        height: 580px;
     }
     
     .hero-visual {
@@ -865,7 +929,7 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 1024px) and (min-width: 768px) and (orientation: portrait) and (-webkit-min-device-pixel-ratio: 2) {
     .phone-mockup {
         width: 280px;
-        height: 560px;
+        height: 580px;
     }
     
     .hero-visual {
@@ -952,8 +1016,8 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .phone-mockup {
-        width: 200px;
-        height: 400px;
+        width: 220px;
+        height: 450px;
     }
     
     .hero-buttons {
@@ -992,8 +1056,8 @@ h1, h2, h3, h4, h5, h6 {
     }
     
     .phone-mockup {
-        width: 220px;
-        height: 440px;
+        width: 240px;
+        height: 480px;
         margin: 20px auto;
     }
     
