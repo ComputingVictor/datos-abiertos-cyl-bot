@@ -271,6 +271,34 @@ def create_export_menu_keyboard(dataset_id: str, exports: List[ExportFormat]) ->
                 icon = format_icons.get(export.format.lower(), "💾")
                 row.append(InlineKeyboardButton(f"{icon} {export.format.upper()}", url=export.url))
             keyboard.append(row)
+        
+        # Add file download options for supported formats
+        download_row = []
+        supported_formats = ["csv", "json", "xlsx"]
+        available_formats = [e for e in exports if e.format.lower() in supported_formats]
+        
+        if available_formats:
+            keyboard.append([
+                InlineKeyboardButton("📱 Descargar como archivo adjunto", callback_data="download_menu_header")
+            ])
+            
+            # Add download buttons for supported formats
+            for i in range(0, len(available_formats), 2):
+                row = []
+                for j in range(i, min(i + 2, len(available_formats))):
+                    export = available_formats[j]
+                    icon = format_icons.get(export.format.lower(), "💾")
+                    
+                    download_callback = f"download_file:{dataset_id}:{export.format}:{export.url}"
+                    if len(download_callback.encode()) > 60:
+                        short_id = callback_mapper.get_short_id(download_callback)
+                        download_callback = f"s:{short_id}"
+                    
+                    row.append(InlineKeyboardButton(
+                        f"📎 {export.format.upper()}", 
+                        callback_data=download_callback
+                    ))
+                keyboard.append(row)
     
     # Back button
     back_callback = f"dataset:{dataset_id}"

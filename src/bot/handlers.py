@@ -407,6 +407,11 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             await handle_daily_summary_callback(query, context)
         elif data.startswith("alert_nav:"):
             await handle_alert_navigation(query, context)
+        elif data.startswith("download_file:"):
+            await handle_file_download(query, context)
+        elif data == "download_menu_header":
+            # Ignore the header callback - it's just for display
+            await query.answer()
         else:
             keyboard = InlineKeyboardMarkup([
                 [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
@@ -2538,5 +2543,90 @@ async def handle_daily_summary_callback(query, context) -> None:
     except Exception as e:
         logger.error(f"Error in handle_daily_summary_callback: {e}")
         await query.edit_message_text("❌ Error al cargar el resumen diario.")
+
+
+async def handle_file_download(query, context) -> None:
+    """Handle file download request and send as attachment."""
+    try:
+        data = query.data
+        # Parse callback data: download_file:dataset_id:format:url
+        parts = data.split(":", 3)
+        
+        if len(parts) < 4:
+            await query.answer("❌ Error en los parámetros de descarga", show_alert=True)
+            return
+            
+        dataset_id, file_format, file_url = parts[1], parts[2], parts[3]
+        
+        # Show loading message
+        await query.answer("⏳ Descargando archivo...", show_alert=True)
+        loading_msg = await context.bot.send_message(
+            chat_id=query.message.chat.id,
+            text=f"⏳ Descargando archivo {file_format.upper()}..."
+        )
+        
+        # Download the file
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(file_url)
+            response.raise_for_status()
+            
+            # Get dataset info for filename
+            dataset = await api_client.get_dataset_info(dataset_id)
+            
+            # Clean dataset title for filename
+            safe_title = "".join(c for c in dataset.title if c.isalnum() or c in (' ', '-', '_')).rstrip()
+            safe_title = safe_title[:50]  # Limit length
+            
+            # Create filename
+            filename = f"{safe_title}.{file_format.lower()}"
+            
+            # Create temporary file
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_format.lower()}") as tmp_file:
+                tmp_file.write(response.content)
+                tmp_file_path = tmp_file.name
+            
+            # Determine content type
+            content_types = {
+                'csv': 'text/csv',
+                'json': 'application/json',
+                'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            }
+            
+            # Send file as document
+            with open(tmp_file_path, 'rb') as file:
+                await context.bot.send_document(
+                    chat_id=query.message.chat.id,
+                    document=file,
+                    filename=filename,
+                    caption=(
+                        f"📎 <b>{dataset.title}</b>\n\n"
+                        f"📊 Formato: {file_format.upper()}\n"
+                        f"📅 Descargado: {datetime.now().strftime('%d/%m/%Y %H:%M')}\n\n"
+                        f"📄 Registros: {dataset.records_count:,}" if dataset.records_count else ""
+                    ),
+                    parse_mode='HTML'
+                )
+            
+            # Clean up
+            os.unlink(tmp_file_path)
+            await loading_msg.delete()
+            
+            logger.info(f"File download completed: {dataset_id} ({file_format})")
+            
+    except httpx.HTTPStatusError as e:
+        logger.error(f"HTTP error downloading file: {e}")
+        await loading_msg.edit_text("❌ Error al descargar el archivo. El enlace puede estar roto.")
+    except httpx.TimeoutException:
+        logger.error("Timeout downloading file")
+        await loading_msg.edit_text("❌ La descarga tardó demasiado tiempo. Inténtalo más tarde.")
+    except Exception as e:
+        logger.error(f"Error in handle_file_download: {e}")
+        try:
+            await loading_msg.edit_text("❌ Error al descargar el archivo.")
+        except:
+            await context.bot.send_message(
+                chat_id=query.message.chat.id,
+                text="❌ Error al descargar el archivo."
+            )
 
 
