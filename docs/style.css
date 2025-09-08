@@ -704,10 +704,23 @@ h1, h2, h3, h4, h5, h6 {
     color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
     transition: color var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .social-link:hover {
     color: white;
+}
+
+.social-icon {
+    width: 20px;
+    height: 20px;
+    transition: transform var(--transition-fast);
+}
+
+.social-link:hover .social-icon {
+    transform: scale(1.1);
 }
 
 /* Animations */
