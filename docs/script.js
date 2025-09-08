@@ -46,14 +46,14 @@ document.addEventListener('DOMContentLoaded', function() {
 // Scroll-based animations (improved and optimized)
 function initScrollAnimations() {
     const observerOptions = {
-        threshold: 0.15,
-        rootMargin: '0px 0px -50px 0px'
+        threshold: 0.1,
+        rootMargin: '0px 0px -20px 0px'
     };
 
     const observer = new IntersectionObserver(function(entries) {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                const delay = entry.target.dataset.delay || 0;
+                const delay = entry.target.dataset.delay ? entry.target.dataset.delay / 2 : 0;
                 setTimeout(() => {
                     entry.target.classList.add('visible');
                     // Unobserve after animation to prevent re-triggering
@@ -209,10 +209,10 @@ function animateChat() {
         message.style.transform = 'translateY(20px)';
         
         setTimeout(() => {
-            message.style.transition = 'all 0.5s ease';
+            message.style.transition = 'all 0.3s ease';
             message.style.opacity = '1';
             message.style.transform = 'translateY(0)';
-        }, (index + 1) * 800);
+        }, (index + 1) * 300);
     });
 }
 

@@ -748,8 +748,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Utility Classes */
 .fade-in-up {
     opacity: 0;
-    transform: translateY(30px);
-    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(20px);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     z-index: inherit;
 }
@@ -760,7 +760,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .delay-200 {
-    transition-delay: 0.2s;
+    transition-delay: 0.1s;
 }
 
 /* Responsive Design */
