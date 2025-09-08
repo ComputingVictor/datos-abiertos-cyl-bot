@@ -319,7 +319,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             await show_themes(query, context, page)
         elif data.startswith("theme:"):
             theme_name = data.split(":", 1)[1]
-            await show_theme_options(query, context, theme_name)
+            await show_datasets(query, context, theme_name, page=0)
         elif data.startswith("datasets:"):
             _, theme_name, page = data.split(":", 2)
             await show_datasets(query, context, theme_name, page=int(page))
@@ -2549,14 +2549,19 @@ async def handle_file_download(query, context) -> None:
     """Handle file download request and send as attachment."""
     try:
         data = query.data
+        logger.info(f"Processing file download with data: {data}")
+        
         # Parse callback data: download_file:dataset_id:format:url
         parts = data.split(":", 3)
+        logger.info(f"Data parts: {parts}")
         
         if len(parts) < 4:
+            logger.error(f"Invalid callback data format: {data}")
             await query.answer("❌ Error en los parámetros de descarga", show_alert=True)
             return
             
         dataset_id, file_format, file_url = parts[1], parts[2], parts[3]
+        logger.info(f"Download parameters: dataset_id={dataset_id}, format={file_format}, url={file_url}")
         
         # Show loading message
         await query.answer("⏳ Descargando archivo...", show_alert=True)
@@ -2566,11 +2571,14 @@ async def handle_file_download(query, context) -> None:
         )
         
         # Download the file
+        logger.info(f"Starting download from URL: {file_url}")
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(file_url)
             response.raise_for_status()
+            logger.info(f"Download completed, content length: {len(response.content)} bytes")
             
             # Get dataset info for filename
+            logger.info(f"Getting dataset info for: {dataset_id}")
             dataset = await api_client.get_dataset_info(dataset_id)
             
             # Clean dataset title for filename
@@ -2579,11 +2587,13 @@ async def handle_file_download(query, context) -> None:
             
             # Create filename
             filename = f"{safe_title}.{file_format.lower()}"
+            logger.info(f"Generated filename: {filename}")
             
             # Create temporary file
             with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_format.lower()}") as tmp_file:
                 tmp_file.write(response.content)
                 tmp_file_path = tmp_file.name
+            logger.info(f"Created temporary file: {tmp_file_path}")
             
             # Determine content type
             content_types = {
@@ -2593,17 +2603,22 @@ async def handle_file_download(query, context) -> None:
             }
             
             # Send file as document
+            logger.info(f"Sending file as document: {filename}")
             with open(tmp_file_path, 'rb') as file:
+                # Create caption
+                caption = (
+                    f"📎 <b>{html.escape(dataset.title)}</b>\n\n"
+                    f"📊 Formato: {file_format.upper()}\n"
+                    f"📅 Descargado: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+                )
+                if dataset.records_count:
+                    caption += f"\n📄 Registros: {dataset.records_count:,}"
+                
                 await context.bot.send_document(
                     chat_id=query.message.chat.id,
                     document=file,
                     filename=filename,
-                    caption=(
-                        f"📎 <b>{dataset.title}</b>\n\n"
-                        f"📊 Formato: {file_format.upper()}\n"
-                        f"📅 Descargado: {datetime.now().strftime('%d/%m/%Y %H:%M')}\n\n"
-                        f"📄 Registros: {dataset.records_count:,}" if dataset.records_count else ""
-                    ),
+                    caption=caption,
                     parse_mode='HTML'
                 )
             
@@ -2615,18 +2630,27 @@ async def handle_file_download(query, context) -> None:
             
     except httpx.HTTPStatusError as e:
         logger.error(f"HTTP error downloading file: {e}")
-        await loading_msg.edit_text("❌ Error al descargar el archivo. El enlace puede estar roto.")
+        try:
+            await loading_msg.edit_text("❌ Error al descargar el archivo. El enlace puede estar roto.")
+        except:
+            pass
     except httpx.TimeoutException:
         logger.error("Timeout downloading file")
-        await loading_msg.edit_text("❌ La descarga tardó demasiado tiempo. Inténtalo más tarde.")
-    except Exception as e:
-        logger.error(f"Error in handle_file_download: {e}")
         try:
-            await loading_msg.edit_text("❌ Error al descargar el archivo.")
+            await loading_msg.edit_text("❌ La descarga tardó demasiado tiempo. Inténtalo más tarde.")
         except:
-            await context.bot.send_message(
-                chat_id=query.message.chat.id,
-                text="❌ Error al descargar el archivo."
-            )
+            pass
+    except Exception as e:
+        logger.error(f"Error in handle_file_download: {e}", exc_info=True)
+        try:
+            await loading_msg.edit_text(f"❌ Error al descargar el archivo: {str(e)[:100]}")
+        except:
+            try:
+                await context.bot.send_message(
+                    chat_id=query.message.chat.id,
+                    text=f"❌ Error al descargar el archivo: {str(e)[:100]}"
+                )
+            except:
+                pass
 
 

@@ -180,6 +180,16 @@ def create_datasets_keyboard(
     if nav_buttons:
         keyboard.append(nav_buttons)
     
+    # Add subscription button for the category
+    subscribe_callback = f"subscribe:theme:{theme_name}"
+    if len(subscribe_callback.encode()) > 60:
+        short_id = callback_mapper.get_short_id(subscribe_callback)
+        subscribe_callback = f"s:{short_id}"
+    
+    keyboard.append([
+        InlineKeyboardButton("🔔 Suscribirme a esta categoría", callback_data=subscribe_callback)
+    ])
+    
     # Back button
     keyboard.append([
         InlineKeyboardButton("🏠 Inicio", callback_data="start")
