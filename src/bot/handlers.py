@@ -2547,6 +2547,7 @@ async def handle_daily_summary_callback(query, context) -> None:
 
 async def handle_file_download(query, context) -> None:
     """Handle file download request and send as attachment."""
+    loading_msg = None
     try:
         data = query.data
         logger.info(f"Processing file download with data: {data}")
@@ -2604,23 +2605,55 @@ async def handle_file_download(query, context) -> None:
             
             # Send file as document
             logger.info(f"Sending file as document: {filename}")
-            with open(tmp_file_path, 'rb') as file:
-                # Create caption
-                caption = (
-                    f"📎 <b>{html.escape(dataset.title)}</b>\n\n"
-                    f"📊 Formato: {file_format.upper()}\n"
-                    f"📅 Descargado: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+            
+            # Create caption
+            caption = (
+                f"📎 <b>{html.escape(dataset.title)}</b>\n\n"
+                f"📊 Formato: {file_format.upper()}\n"
+                f"📅 Descargado: {datetime.now().strftime('%d/%m/%Y %H:%M')}"
+            )
+            if dataset.records_count:
+                caption += f"\n📄 Registros: {dataset.records_count:,}"
+            
+            # Check file size (Telegram has a 50MB limit for bots)
+            file_size = os.path.getsize(tmp_file_path)
+            logger.info(f"📏 File size: {file_size} bytes ({file_size/1024/1024:.2f} MB)")
+            
+            if file_size > 50 * 1024 * 1024:  # 50MB limit
+                await loading_msg.edit_text(
+                    f"❌ El archivo es demasiado grande ({file_size/1024/1024:.1f} MB).\n"
+                    f"Telegram tiene un límite de 50MB.\n\n"
+                    f"Puedes descargarlo directamente desde: {file_url}"
                 )
-                if dataset.records_count:
-                    caption += f"\n📄 Registros: {dataset.records_count:,}"
-                
-                await context.bot.send_document(
-                    chat_id=query.message.chat.id,
-                    document=file,
-                    filename=filename,
-                    caption=caption,
-                    parse_mode='HTML'
-                )
+                os.unlink(tmp_file_path)
+                return
+            
+            # Send document using the file path directly
+            with open(tmp_file_path, 'rb') as file_obj:
+                document_data = file_obj.read()
+            
+            # Use BytesIO to create a proper file-like object  
+            file_stream = io.BytesIO(document_data)
+            file_stream.name = filename
+            
+            logger.info(f"📤 Sending document to chat {query.message.chat.id}...")
+            logger.info(f"📄 Filename: {filename}")
+            logger.info(f"📝 Caption length: {len(caption)} chars")
+            
+            message = await context.bot.send_document(
+                chat_id=query.message.chat.id,
+                document=file_stream,
+                filename=filename,
+                caption=caption,
+                parse_mode='HTML'
+            )
+            
+            logger.info(f"✅ Document sent successfully! Message ID: {message.message_id}")
+            if message.document:
+                logger.info(f"📎 Telegram file_id: {message.document.file_id}")
+                logger.info(f"📏 Telegram file_size: {message.document.file_size}")
+            else:
+                logger.warning("⚠️  No document object in response - this might indicate an issue!")
             
             # Clean up
             os.unlink(tmp_file_path)
@@ -2630,21 +2663,26 @@ async def handle_file_download(query, context) -> None:
             
     except httpx.HTTPStatusError as e:
         logger.error(f"HTTP error downloading file: {e}")
-        try:
-            await loading_msg.edit_text("❌ Error al descargar el archivo. El enlace puede estar roto.")
-        except:
-            pass
+        if loading_msg:
+            try:
+                await loading_msg.edit_text("❌ Error al descargar el archivo. El enlace puede estar roto.")
+            except:
+                pass
     except httpx.TimeoutException:
         logger.error("Timeout downloading file")
-        try:
-            await loading_msg.edit_text("❌ La descarga tardó demasiado tiempo. Inténtalo más tarde.")
-        except:
-            pass
+        if loading_msg:
+            try:
+                await loading_msg.edit_text("❌ La descarga tardó demasiado tiempo. Inténtalo más tarde.")
+            except:
+                pass
     except Exception as e:
         logger.error(f"Error in handle_file_download: {e}", exc_info=True)
-        try:
-            await loading_msg.edit_text(f"❌ Error al descargar el archivo: {str(e)[:100]}")
-        except:
+        if loading_msg:
+            try:
+                await loading_msg.edit_text(f"❌ Error al descargar el archivo: {str(e)[:100]}")
+            except:
+                pass
+        else:
             try:
                 await context.bot.send_message(
                     chat_id=query.message.chat.id,
