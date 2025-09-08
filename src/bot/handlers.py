@@ -37,6 +37,9 @@ settings = get_settings()
 db_manager = DatabaseManager(settings.database_url)
 api_client = JCYLAPIClient(settings.jcyl_api_base_url)
 
+# Global storage for alert navigation state (user_id -> alert data)
+alert_sessions = {}
+
 
 def escape_markdown_v2(text: str) -> str:
     """Escape special characters for Markdown V2 format."""
@@ -402,6 +405,8 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             await show_export_menu(query, context, dataset_id)
         elif data.startswith("daily_summary:"):
             await handle_daily_summary_callback(query, context)
+        elif data.startswith("alert_nav:"):
+            await handle_alert_navigation(query, context)
         else:
             keyboard = InlineKeyboardMarkup([
                 [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
@@ -585,8 +590,8 @@ async def show_dataset_info(query, context, dataset_id: str) -> None:
         if len(title) > 80:
             title = title[:80] + "..."
         
-        # Format the modification date to be user-friendly
-        friendly_date = format_user_friendly_date(dataset.modified)
+        # Format the data processing date to be user-friendly (actual data updates)
+        friendly_date = format_user_friendly_date(dataset.data_processed)
         
         publisher = clean_text_for_markdown(dataset.publisher) if dataset.publisher else "Dato no disponible"
         license_text = clean_text_for_markdown(dataset.license) if dataset.license else "Dato no disponible"
@@ -958,16 +963,16 @@ async def portal_stats_command(update: Update, context: ContextTypes.DEFAULT_TYP
         cutoff_date = datetime.now() - timedelta(days=30)
         recent_count = 0
         
-        # Count datasets modified in last 30 days
+        # Count datasets with data updated in last 30 days
         sample_dates = []
         for i, dataset in enumerate(recent_datasets):
-            if dataset.modified and dataset.modified != "Dato no disponible":
+            if dataset.data_processed and dataset.data_processed != "Dato no disponible":
                 # Collect first 3 dates as samples for debugging
                 if len(sample_dates) < 3:
-                    sample_dates.append(dataset.modified)
+                    sample_dates.append(dataset.data_processed)
                 try:
                     modified_date = None
-                    date_str = dataset.modified.strip()
+                    date_str = dataset.data_processed.strip()
                     
                     # Try different date formats
                     formats = [
@@ -993,7 +998,7 @@ async def portal_stats_command(update: Update, context: ContextTypes.DEFAULT_TYP
                         
                 except Exception as e:
                     # Debug: log some failed dates to understand the format
-                    logger.debug(f"Failed to parse date: {dataset.modified}")
+                    logger.debug(f"Failed to parse date: {dataset.data_processed}")
                     continue
         
         # Log sample dates for debugging
@@ -1080,10 +1085,10 @@ async def refresh_portal_stats(query, context) -> None:
         recent_count = 0
         
         for dataset in recent_datasets:
-            if dataset.modified and dataset.modified != "Dato no disponible":
+            if dataset.data_processed and dataset.data_processed != "Dato no disponible":
                 try:
                     modified_date = None
-                    date_str = dataset.modified.strip()
+                    date_str = dataset.data_processed.strip()
                     
                     # Try different date formats
                     formats = [
@@ -1108,7 +1113,7 @@ async def refresh_portal_stats(query, context) -> None:
                         recent_count += 1
                         
                 except Exception as e:
-                    logger.debug(f"Failed to parse date: {dataset.modified}")
+                    logger.debug(f"Failed to parse date: {dataset.data_processed}")
                     continue
         
         # Get theme counts
@@ -1972,7 +1977,7 @@ async def handle_dataset_preview(query, context, dataset_id: str) -> None:
             f"👁️ <b>Vista previa</b>\n\n"
             f"📄 <b>{title}</b>\n\n"
             f"📊 <b>Registros totales:</b> {records_text}\n"
-            f"📅 <b>Última actualización:</b> {dataset.modified}\n"
+            f"📅 <b>Última actualización de datos:</b> {friendly_date}\n"
             f"🏢 <b>Publicador:</b> {dataset.publisher}\n\n"
             f"💡 <b>Consejo:</b> Usa el botón de descarga para obtener los datos completos."
         )
@@ -2308,6 +2313,90 @@ async def export_catalog_command(update: Update, context: ContextTypes.DEFAULT_T
             f"Inténtalo más tarde o contacta al administrador.",
             parse_mode="Markdown"
         )
+
+
+async def handle_alert_navigation(query, context) -> None:
+    """Handle navigation between alert datasets."""
+    try:
+        user_id = query.from_user.id
+        data = query.data
+        
+        # Extract new index from callback data
+        new_index = int(data.split(":", 1)[1])
+        
+        # Get stored alert data
+        if user_id not in alert_sessions:
+            await query.edit_message_text("❌ Sesión de alerta expirada. Usa /start para continuar.")
+            return
+        
+        alert_data = alert_sessions[user_id]
+        datasets = alert_data['datasets']
+        title = alert_data['title']
+        
+        # Validate index
+        if new_index < 0 or new_index >= len(datasets):
+            await query.answer("❌ Índice inválido")
+            return
+        
+        # Update the message with new dataset
+        current_dataset = datasets[new_index]
+        total_datasets = len(datasets)
+        
+        # Import needed functions from alerts module
+        from ..services.alerts import clean_dataset_title, clean_publisher_name, format_date_for_user
+        
+        # Create message for current dataset
+        title_text = clean_dataset_title(current_dataset.title)
+        publisher_text = clean_publisher_name(current_dataset.publisher)
+        formatted_date = format_date_for_user(current_dataset.data_processed)
+        
+        message = f"{title} ({new_index + 1}/{total_datasets})\n\n"
+        message += f"📄 *{title_text}*\n"
+        
+        if publisher_text and publisher_text != "Administración Pública":
+            message += f"🏢 {publisher_text}\n"
+            
+        message += f"📅 *Datos actualizados:* {formatted_date}\n"
+        message += f"📊 *Registros:* {current_dataset.records_count:,}\n\n"
+        
+        if total_datasets > 1:
+            message += f"📋 Usa los botones para navegar entre los {total_datasets} datasets"
+        else:
+            message += "Usa los botones para más acciones."
+        
+        # Create navigation keyboard
+        keyboard = []
+        
+        if total_datasets > 1:
+            nav_row = []
+            if new_index > 0:
+                nav_row.append(InlineKeyboardButton("⬅️ Anterior", callback_data=f"alert_nav:{new_index-1}"))
+            if new_index < total_datasets - 1:
+                nav_row.append(InlineKeyboardButton("➡️ Siguiente", callback_data=f"alert_nav:{new_index+1}"))
+            
+            if nav_row:
+                keyboard.append(nav_row)
+        
+        # Add action buttons
+        keyboard.append([
+            InlineKeyboardButton("📋 Ver detalles", callback_data=f"dataset:{current_dataset.dataset_id}"),
+            InlineKeyboardButton("🏠 Inicio", callback_data="start")
+        ])
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        await query.edit_message_text(
+            text=message,
+            parse_mode="Markdown",
+            reply_markup=reply_markup,
+            disable_web_page_preview=True
+        )
+        
+        await query.answer()  # Acknowledge the button press
+        
+    except Exception as e:
+        logger.error(f"Error in alert navigation: {e}", exc_info=True)
+        await query.edit_message_text("❌ Error en la navegación. Usa /start para continuar.")
 
 
 async def daily_summary(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

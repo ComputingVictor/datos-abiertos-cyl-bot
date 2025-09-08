@@ -290,23 +290,19 @@ class AlertService:
             )
             return False
         
-        # Check for changes
+        # Check for changes - ONLY alert on data updates, not metadata
         changed = False
-        
-        if (latest_snapshot.modified != dataset.modified and 
-            dataset.modified and dataset.modified != "Dato no disponible"):
-            changed = True
-            logger.info(f"Dataset {dataset_id} - modified changed: {latest_snapshot.modified} -> {dataset.modified}")
         
         if (latest_snapshot.data_processed != dataset.data_processed and 
             dataset.data_processed and dataset.data_processed != "Dato no disponible"):
             changed = True
             logger.info(f"Dataset {dataset_id} - data_processed changed: {latest_snapshot.data_processed} -> {dataset.data_processed}")
+            logger.info("This is a DATA update (not just metadata) - will trigger alert")
         
+        # We no longer alert on metadata changes, only log them
         if (latest_snapshot.metadata_processed != dataset.metadata_processed and 
             dataset.metadata_processed and dataset.metadata_processed != "Dato no disponible"):
-            changed = True
-            logger.info(f"Dataset {dataset_id} - metadata_processed changed: {latest_snapshot.metadata_processed} -> {dataset.metadata_processed}")
+            logger.info(f"Dataset {dataset_id} - metadata_processed changed (no alert): {latest_snapshot.metadata_processed} -> {dataset.metadata_processed}")
         
         if latest_snapshot.records_count != dataset.records_count:
             changed = True
@@ -333,71 +329,107 @@ class AlertService:
         notification_type: str,
         theme_name: str = None
     ) -> None:
-        """Send notifications with pagination for better readability."""
-        datasets_per_page = 3  # Show 3 datasets per message
-        total_pages = (len(datasets) + datasets_per_page - 1) // datasets_per_page
+        """Send single notification with navigable buttons for each dataset."""
+        if not datasets:
+            return
+            
+        # Send to all subscribers
+        for subscription in subscribers:
+            session = self.db_manager.get_session()
+            try:
+                from ..models import User
+                user = session.query(User).filter_by(id=subscription.user_id).first()
+                if user:
+                    # Store alert data for navigation
+                    from ..bot.handlers import alert_sessions
+                    alert_sessions[user.telegram_id] = {
+                        'datasets': datasets,
+                        'title': title,
+                        'alert_type': notification_type,
+                        'theme_name': theme_name
+                    }
+                    
+                    # Send navigable alert message
+                    await self._send_navigable_alert(
+                        user_id=user.telegram_id,
+                        datasets=datasets,
+                        title=title,
+                        current_index=0,
+                        alert_type=notification_type,
+                        theme_name=theme_name
+                    )
+                    logger.info(f"Navigable alert sent to user {user.telegram_id}")
+            except Exception as e:
+                logger.error(f"Failed to send alert to user {subscription.user_id}: {e}")
+            finally:
+                session.close()
+                
+    async def _send_navigable_alert(
+        self,
+        user_id: int,
+        datasets: List,
+        title: str,
+        current_index: int = 0,
+        alert_type: str = "",
+        theme_name: str = None
+    ) -> None:
+        """Send a single alert message with navigation buttons."""
+        if not datasets:
+            return
+            
+        current_dataset = datasets[current_index]
+        total_datasets = len(datasets)
         
-        for page in range(total_pages):
-            start_idx = page * datasets_per_page
-            end_idx = min((page + 1) * datasets_per_page, len(datasets))
-            page_datasets = datasets[start_idx:end_idx]
+        # Create message for current dataset
+        title_text = clean_dataset_title(current_dataset.title)
+        publisher_text = clean_publisher_name(current_dataset.publisher)
+        formatted_date = format_date_for_user(current_dataset.data_processed)
+        
+        message = f"{title} ({current_index + 1}/{total_datasets})\n\n"
+        message += f"📄 *{title_text}*\n"
+        
+        if publisher_text and publisher_text != "Administración Pública":
+            message += f"🏢 {publisher_text}\n"
             
-            # Create message for this page
-            if total_pages > 1:
-                message = f"{title} ({page + 1}/{total_pages})\n\n"
-            else:
-                message = f"{title}\n\n"
+        message += f"📅 *Datos actualizados:* {formatted_date}\n"
+        message += f"📊 *Registros:* {current_dataset.records_count:,}\n\n"
+        
+        if total_datasets > 1:
+            message += f"📋 Usa los botones para navegar entre los {total_datasets} datasets"
+        else:
+            message += "Usa los botones para más acciones."
+        
+        # Create navigation keyboard
+        keyboard = []
+        
+        if total_datasets > 1:
+            nav_row = []
+            if current_index > 0:
+                nav_row.append(InlineKeyboardButton("⬅️ Anterior", callback_data=f"alert_nav:{current_index-1}"))
+            if current_index < total_datasets - 1:
+                nav_row.append(InlineKeyboardButton("➡️ Siguiente", callback_data=f"alert_nav:{current_index+1}"))
             
-            for dataset in page_datasets:
-                # Clean and format title - show full title in bold without truncating
-                title_text = clean_dataset_title(dataset.title)
-                
-                # Clean publisher
-                publisher_text = clean_publisher_name(dataset.publisher)
-                
-                # Format date
-                formatted_date = format_date_for_user(dataset.modified)
-                
-                message += f"📄 *{title_text}*\n"
-                if publisher_text and publisher_text != "Administración Pública":
-                    message += f"🏢 {publisher_text}\n"
-                message += f"📅 *Actualizado:* {formatted_date}\n\n"
-            
-            # Add navigation info for multiple pages
-            if total_pages > 1:
-                if page == 0:
-                    message += f"⏭️ Página {page + 1} de {total_pages} - Continúa en el siguiente mensaje..."
-                elif page == total_pages - 1:
-                    message += f"📋 Total: {len(datasets)} datasets nuevos"
-                else:
-                    message += f"📄 Página {page + 1} de {total_pages} - Continúa..."
-            else:
-                message += f"📋 Total: {len(datasets)} datasets nuevos"
-            
-            message += "\n\nUsa /start para explorar los datasets."
-            
-            # Send to all subscribers
-            for subscription in subscribers:
-                session = self.db_manager.get_session()
-                try:
-                    from ..models import User
-                    user = session.query(User).filter_by(id=subscription.user_id).first()
-                    if user:
-                        await self.bot.send_message(
-                            chat_id=user.telegram_id,
-                            text=message,
-                            parse_mode="Markdown"
-                        )
-                        
-                        # Small delay between messages to avoid flooding
-                        if page < total_pages - 1:
-                            import asyncio
-                            await asyncio.sleep(1)
-                            
-                except Exception as e:
-                    logger.error(f"Error sending notification to user {subscription.user_id}: {e}")
-                finally:
-                    session.close()
+            if nav_row:
+                keyboard.append(nav_row)
+        
+        # Add action buttons
+        keyboard.append([
+            InlineKeyboardButton("📋 Ver detalles", callback_data=f"dataset:{current_dataset.dataset_id}"),
+            InlineKeyboardButton("🏠 Inicio", callback_data="start")
+        ])
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        try:
+            await self.bot.send_message(
+                chat_id=user_id,
+                text=message,
+                parse_mode="Markdown",
+                reply_markup=reply_markup,
+                disable_web_page_preview=True
+            )
+        except Exception as e:
+            logger.error(f"Failed to send navigable alert to user {user_id}: {e}")
 
     async def _notify_new_datasets_in_theme(self, theme_name: str, new_dataset_ids: Set[str]) -> None:
         """Notify users about new datasets in a theme with pagination."""
@@ -460,16 +492,16 @@ class AlertService:
         # Clean and format title, publisher and date
         title_text = clean_dataset_title(dataset.title)
         publisher_text = clean_publisher_name(dataset.publisher)
-        formatted_date = format_date_for_user(dataset.modified)
+        formatted_date = format_date_for_user(dataset.data_processed)
         
         # Create message with improved formatting
-        message = f"🔄 *Dataset actualizado*\n\n📄 *{title_text}*\n"
+        message = f"🔄 *Datos del dataset actualizados*\n\n📄 *{title_text}*\n"
         
         if publisher_text and publisher_text != "Administración Pública":
             message += f"🏢 {publisher_text}\n"
             
         message += (
-            f"📅 *Actualizado:* {formatted_date}\n"
+            f"📅 *Datos actualizados:* {formatted_date}\n"
             f"📊 *Registros:* {dataset.records_count:,}\n\n"
             f"Usa /start para ver los detalles actualizados."
         )
