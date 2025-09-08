@@ -413,7 +413,7 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             await handle_alert_navigation(query, context)
         elif data.startswith("download_file:"):
             logger.info(f"🎯 DOWNLOAD FILE CALLBACK TRIGGERED: {data}")
-            await handle_file_download(query, context)
+            await handle_file_download(query, context, data)
         elif data == "download_menu_header":
             # Ignore the header callback - it's just for display
             await query.answer()
@@ -2550,14 +2550,13 @@ async def handle_daily_summary_callback(query, context) -> None:
         await query.edit_message_text("❌ Error al cargar el resumen diario.")
 
 
-async def handle_file_download(query, context) -> None:
+async def handle_file_download(query, context, data: str) -> None:
     """Handle file download request and send as attachment."""
     logger.info("🎯 handle_file_download called!")
     loading_msg = None
     
     try:
-        data = query.data
-        logger.info(f"📞 Processing file download with data: {data}")
+        logger.info(f"📞 Processing file download with resolved data: {data}")
         
         # Show immediate response
         await query.answer("⏳ Iniciando descarga...", show_alert=False)
