@@ -544,8 +544,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 40px;
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 .feature-card {
@@ -556,6 +558,7 @@ h1, h2, h3, h4, h5, h6 {
     transition: all var(--transition-medium);
     position: relative;
     overflow: hidden;
+    text-align: center;
 }
 
 .feature-card::before {
@@ -949,6 +952,24 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
+/* Tablets - mantener 2 columnas */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .features-grid {
+        gap: 30px;
+        max-width: 800px;
+    }
+    
+    .feature-card {
+        padding: 30px;
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        width: 70px;
+        height: 70px;
+    }
+}
+
 @media (max-width: 768px) {
     .nav-menu {
         position: absolute;
@@ -1012,6 +1033,7 @@ h1, h2, h3, h4, h5, h6 {
     
     .features-grid {
         grid-template-columns: 1fr;
+        gap: 30px;
     }
     
     .stats-grid {
@@ -1056,6 +1078,13 @@ h1, h2, h3, h4, h5, h6 {
     
     .feature-card {
         padding: 30px 20px;
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        width: 60px;
+        height: 60px;
+        margin-bottom: 15px;
     }
     
     .phone-mockup {
@@ -1278,9 +1307,12 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 3rem;
+    font-size: 3.5rem;
     line-height: 1;
     transition: all 0.3s ease;
+    margin: 0 auto 20px;
+    width: 80px;
+    height: 80px;
 }
 
 .feature-card:hover .feature-icon {

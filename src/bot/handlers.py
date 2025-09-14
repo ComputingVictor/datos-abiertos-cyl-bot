@@ -1063,7 +1063,7 @@ async def portal_stats_command(update: Update, context: ContextTypes.DEFAULT_TYP
             [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
         ])
         
-        await loading_message.edit_text(stats_message, reply_markup=keyboard)
+        await loading_message.edit_text(stats_message, reply_markup=keyboard, parse_mode='Markdown')
         
     except Exception as e:
         logger.error(f"Error getting portal stats: {e}")
@@ -1171,7 +1171,7 @@ async def refresh_portal_stats(query, context) -> None:
             [InlineKeyboardButton("🏠 Inicio", callback_data="start")]
         ])
         
-        await query.edit_message_text(stats_message, reply_markup=keyboard)
+        await query.edit_message_text(stats_message, reply_markup=keyboard, parse_mode='Markdown')
         
     except Exception as e:
         logger.error(f"Error refreshing stats: {e}")
