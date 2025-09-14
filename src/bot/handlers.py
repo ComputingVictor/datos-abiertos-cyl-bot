@@ -1043,8 +1043,7 @@ async def portal_stats_command(update: Update, context: ContextTypes.DEFAULT_TYP
         
         stats_message += f"📈 **Datos Generales**\n"
         stats_message += f"• Total datasets: **~{total_datasets_estimate:,}**\n"
-        stats_message += f"• Categorías disponibles: **{total_themes}**\n"
-        stats_message += f"• Actualizados últimos 30 días: **{recent_count}**\n\n"
+        stats_message += f"• Categorías disponibles: **{total_themes}**\n\n"
         
         stats_message += f"🔥 **Categorías más populares**\n"
         for i, (theme_name, count) in enumerate(top_themes, 1):
@@ -1153,8 +1152,7 @@ async def refresh_portal_stats(query, context) -> None:
         stats_message = "📊 **Estadísticas del Portal de Datos Abiertos CyL**\n\n"
         stats_message += f"📈 **Datos Generales**\n"
         stats_message += f"• Total datasets: **~{total_datasets_estimate:,}**\n"
-        stats_message += f"• Categorías disponibles: **{total_themes}**\n"
-        stats_message += f"• Actualizados últimos 30 días: **{recent_count}**\n\n"
+        stats_message += f"• Categorías disponibles: **{total_themes}**\n\n"
         
         stats_message += f"🔥 **Categorías más populares**\n"
         for i, (theme_name, count) in enumerate(top_themes, 1):

@@ -1273,36 +1273,31 @@ h1, h2, h3, h4, h5, h6 {
     }
 }
 
-/* SVG Icons Styles */
-.feature-icon svg {
-    color: var(--primary-color);
+/* Emoji Icons Styles - Centered and Enhanced */
+.feature-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    line-height: 1;
     transition: all 0.3s ease;
 }
 
-.feature-card:hover .feature-icon svg {
+.feature-card:hover .feature-icon {
     transform: scale(1.1);
-    color: var(--secondary-color);
 }
 
-.stat-icon svg {
-    color: var(--primary-color);
-    opacity: 0.8;
-}
-
-.stat-card:hover .stat-icon svg {
-    opacity: 1;
-    transform: scale(1.05);
+.stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    line-height: 1;
+    opacity: 0.9;
     transition: all 0.3s ease;
 }
 
-/* Dark mode for SVG icons */
-@media (prefers-color-scheme: dark) {
-    .feature-icon svg,
-    .stat-icon svg {
-        color: var(--primary-color);
-    }
-    
-    .feature-card:hover .feature-icon svg {
-        color: #4fc3f7;
-    }
+.stat-card:hover .stat-icon {
+    opacity: 1;
+    transform: scale(1.1);
 }}
