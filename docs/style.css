@@ -1193,3 +1193,116 @@ h1, h2, h3, h4, h5, h6 {
         background-color: var(--background-primary) !important;
     }
 }
+
+/* Time Saved Counter */
+.time-saved-counter {
+    margin-top: 40px;
+    padding: 25px;
+    background: rgba(0, 102, 204, 0.05);
+    border: 1px solid rgba(0, 102, 204, 0.1);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    text-align: center;
+    max-width: 400px;
+    transition: all 0.3s ease;
+}
+
+.time-saved-counter:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 102, 204, 0.15);
+}
+
+.counter-text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+}
+
+.counter-label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.counter-value {
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
+    line-height: 1;
+}
+
+.counter-subtitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 10px;
+    opacity: 0.9;
+}
+
+/* Responsive design for counter */
+@media (max-width: 768px) {
+    .time-saved-counter {
+        margin-top: 30px;
+        padding: 20px;
+        max-width: 100%;
+    }
+    
+    .counter-value {
+        font-size: 2.8rem;
+    }
+    
+    .counter-label {
+        font-size: 0.9rem;
+    }
+    
+    .counter-subtitle {
+        font-size: 1rem;
+    }
+}
+
+/* Dark mode support for counter */
+@media (prefers-color-scheme: dark) {
+    .time-saved-counter {
+        background: rgba(0, 102, 204, 0.1);
+        border: 1px solid rgba(0, 102, 204, 0.2);
+    }
+}
+
+/* SVG Icons Styles */
+.feature-icon svg {
+    color: var(--primary-color);
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon svg {
+    transform: scale(1.1);
+    color: var(--secondary-color);
+}
+
+.stat-icon svg {
+    color: var(--primary-color);
+    opacity: 0.8;
+}
+
+.stat-card:hover .stat-icon svg {
+    opacity: 1;
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+}
+
+/* Dark mode for SVG icons */
+@media (prefers-color-scheme: dark) {
+    .feature-icon svg,
+    .stat-icon svg {
+        color: var(--primary-color);
+    }
+    
+    .feature-card:hover .feature-icon svg {
+        color: #4fc3f7;
+    }
+}}

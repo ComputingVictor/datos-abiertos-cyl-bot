@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bot Datos Abiertos CyL - Tu Asistente de Datos de Castilla y León</title>
-    <meta name="description" content="Descubre y explora los datos abiertos de Castilla y León con nuestro bot inteligente de Telegram. Alertas, búsquedas y estadísticas al instante.">
+    <meta name="description" content="Accede fácilmente a 400+ datasets oficiales de Castilla y León desde Telegram. Alertas personalizadas, exportación a Excel y búsqueda inteligente.">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
     
     <!-- Meta tags para preview en redes sociales -->
     <meta property="og:title" content="Bot Datos Abiertos CyL - Tu Asistente de Datos de Castilla y León">
-    <meta property="og:description" content="Explora, busca y recibe alertas de cientos de datasets públicos de Castilla y León directamente en Telegram.">
+    <meta property="og:description" content="Bot de Telegram para acceder cómodamente a datos abiertos de Castilla y León. Búsqueda rápida, alertas y exportación de 400+ datasets oficiales.">
     <meta property="og:image" content="https://computingvictor.github.io/datos-abiertos-cyl-bot/assets/jcyl_logo.png">
     <meta property="og:url" content="https://computingvictor.github.io/datos-abiertos-cyl-bot/">
     <meta property="og:type" content="website">
@@ -27,7 +27,7 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Bot Datos Abiertos CyL">
-    <meta name="twitter:description" content="Tu asistente inteligente para datos abiertos de Castilla y León">
+    <meta name="twitter:description" content="Bot de Telegram para datos abiertos de Castilla y León. Acceso rápido y cómodo a información pública oficial.">
     <meta name="twitter:image" content="https://computingvictor.github.io/datos-abiertos-cyl-bot/assets/jcyl_logo.png">
 </head>
 <body>
@@ -65,23 +65,32 @@
         <div class="hero-content">
             <div class="hero-text fade-in-up">
                 <h1 class="hero-title">
-                    Tu asistente inteligente para
-                    <span class="gradient-text">Datos Abiertos</span>
+                    <span class="gradient-text">400+ datasets oficiales</span>
                     de Castilla y León
+                    desde tu móvil
                 </h1>
                 <p class="hero-subtitle">
-                    Explora, busca y recibe alertas de cientos de datasets públicos 
-                    directamente en Telegram. Información actualizada al instante.
+                    Accede instantáneamente a datos de salud, educación, turismo, economía y más.
+                    Sin formularios, sin esperas. Información pública cómoda y rápida.
                 </p>
                 <div class="hero-buttons">
                     <a href="https://t.me/cyl_asistente_bot" class="btn-primary" target="_blank" rel="noopener">
                         <span class="btn-icon">📱</span>
-                        Abrir en Telegram
+                        Usar Ahora
                     </a>
                     <a href="#funciones" class="btn-secondary">
                         <span class="btn-icon">📖</span>
                         Ver Funciones
                     </a>
+                </div>
+                
+                <!-- Time Saving Counter -->
+                <div class="time-saved-counter fade-in-up delay-400">
+                    <div class="counter-text">
+                        <span class="counter-label">Tiempo promedio por consulta:</span>
+                        <span class="counter-value">10 seg</span>
+                    </div>
+                    <div class="counter-subtitle">Sin formularios ni navegación compleja</div>
                 </div>
             </div>
             <div class="hero-visual fade-in-up delay-200">
@@ -106,10 +115,10 @@
                                 </div>
                                 <div class="message bot-message">
                                     <div class="message-text">
-                                        🏛️ <strong>Portal Datos Abiertos CyL</strong><br>
-                                        📊 Explora por categorías<br>
-                                        🔍 Busca datasets<br>
-                                        🔔 Configura alertas
+                                        ⚡ <strong>Acceso Instantáneo CyL</strong><br>
+                                        📊 400+ datasets oficiales<br>
+                                        🔔 Alertas únicas tiempo real<br>
+                                        📥 Exportación masiva Excel
                                     </div>
                                 </div>
                             </div>
@@ -127,17 +136,23 @@
     <section id="funciones" class="features">
         <div class="container">
             <div class="section-header fade-in-up">
-                <h2 class="section-title">Funcionalidades Potentes</h2>
-                <p class="section-subtitle">Todo lo que necesitas para trabajar con datos abiertos</p>
+                <h2 class="section-title">Funciones Útiles para Ti</h2>
+                <p class="section-subtitle">Herramientas diseñadas para que acceder a datos públicos sea fácil y rápido</p>
             </div>
             
             <div class="features-grid">
                 <div class="feature-card fade-in-up" data-delay="100">
-                    <div class="feature-icon">🔍</div>
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="21 21l-4.35-4.35"></path>
+                            <path d="11 6a5 5 0 0 1 5 5"></path>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">Búsqueda Inteligente</h3>
                     <p class="feature-description">
-                        Encuentra datasets por palabras clave, categorías o temas específicos. 
-                        Resultados precisos y actualizados.
+                        Encuentra datos en segundos con sinónimos inteligentes. Busca "hospitales" 
+                        y encuentra automáticamente "centros sanitarios" y datos relacionados.
                     </p>
                     <div class="feature-demo">
                         <code>/buscar educación Burgos</code>
@@ -145,11 +160,16 @@
                 </div>
 
                 <div class="feature-card fade-in-up" data-delay="200">
-                    <div class="feature-icon">🔔</div>
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">Alertas Personalizadas</h3>
                     <p class="feature-description">
-                        Suscríbete a categorías, datasets específicos o palabras clave. 
-                        Recibe notificaciones cuando hay actualizaciones.
+                        Recibe notificaciones cuando se publiquen datos que te interesan. 
+                        Suscríbete por categoría, dataset específico o palabra clave.
                     </p>
                     <div class="feature-demo">
                         <code>/mis_alertas</code>
@@ -157,11 +177,16 @@
                 </div>
 
                 <div class="feature-card fade-in-up" data-delay="300">
-                    <div class="feature-icon">📊</div>
-                    <h3 class="feature-title">Estadísticas en Tiempo Real</h3>
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23,6 13.5,15.5 8.5,10.5 1,18"></polyline>
+                            <polyline points="17,6 23,6 23,12"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Estadísticas Útiles</h3>
                     <p class="feature-description">
-                        Consulta estadísticas del portal, datasets más populares y 
-                        tendencias de actualización.
+                        Consulta qué datasets se actualizan más frecuentemente, 
+                        cuáles son los más populares y las últimas tendencias del portal.
                     </p>
                     <div class="feature-demo">
                         <code>/estadisticas</code>
@@ -169,11 +194,15 @@
                 </div>
 
                 <div class="feature-card fade-in-up" data-delay="400">
-                    <div class="feature-icon">⭐</div>
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">Favoritos</h3>
                     <p class="feature-description">
-                        Guarda tus datasets favoritos para acceso rápido. 
-                        Organiza tu biblioteca personal de datos.
+                        Guarda los datasets que más utilizas para acceso rápido. 
+                        Tu biblioteca personal de datos, siempre a mano.
                     </p>
                     <div class="feature-demo">
                         <code>/favoritos</code>
@@ -181,11 +210,19 @@
                 </div>
 
                 <div class="feature-card fade-in-up" data-delay="500">
-                    <div class="feature-icon">📅</div>
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                            <circle cx="12" cy="16" r="2"></circle>
+                        </svg>
+                    </div>
                     <h3 class="feature-title">Datos Recientes</h3>
                     <p class="feature-description">
-                        Descubre los datasets más recientemente publicados 
-                        o actualizados en el portal.
+                        Descubre los datasets publicados o actualizados más recientemente. 
+                        Manténte al día con la información más fresca.
                     </p>
                     <div class="feature-demo">
                         <code>/recientes</code>
@@ -193,14 +230,56 @@
                 </div>
 
                 <div class="feature-card fade-in-up" data-delay="600">
-                    <div class="feature-icon">🏷️</div>
-                    <h3 class="feature-title">Explorar por Categorías</h3>
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7,10 12,15 17,10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Exportación a Excel</h3>
                     <p class="feature-description">
-                        Navega por todas las categorías disponibles: salud, 
-                        educación, economía, transporte y muchas más.
+                        Descarga el catálogo completo en Excel con un solo comando. 
+                        400+ datasets con metadatos, enlaces y fechas organizados.
                     </p>
                     <div class="feature-demo">
-                        <code>/start → Categorías</code>
+                        <code>/catalogo</code>
+                    </div>
+                </div>
+
+                <div class="feature-card fade-in-up" data-delay="700">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path>
+                            <path d="18 14h-8"></path>
+                            <path d="15 18h-5"></path>
+                            <path d="10 6h8v4h-8z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Resumen Diario</h3>
+                    <p class="feature-description">
+                        Cada mañana a las 9:00, resumen automático de nuevos datasets. 
+                        Mantente informado sin esfuerzo.
+                    </p>
+                    <div class="feature-demo">
+                        <code>/resumen_diario</code>
+                    </div>
+                </div>
+
+                <div class="feature-card fade-in-up" data-delay="800">
+                    <div class="feature-icon">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Navegación Simple</h3>
+                    <p class="feature-description">
+                        15+ categorías oficiales: contratos, COVID, educación, turismo.
+                        Sin formularios complicados. Datos en segundos.
+                    </p>
+                    <div class="feature-demo">
+                        <code>/start → Economía</code>
                     </div>
                 </div>
             </div>
@@ -211,30 +290,52 @@
     <section id="estadisticas" class="stats">
         <div class="container">
             <div class="section-header fade-in-up">
-                <h2 class="section-title">Datos en Números</h2>
-                <p class="section-subtitle">El impacto de los datos abiertos de Castilla y León</p>
+                <h2 class="section-title">Por Qué Es Útil</h2>
+                <p class="section-subtitle">Características que hacen cómodo el acceso a datos públicos</p>
             </div>
             
             <div class="stats-grid">
                 <div class="stat-card fade-in-up" data-delay="100">
-                    <div class="stat-icon">📊</div>
-                    <div class="stat-label">Datos Oficiales</div>
-                    <div class="stat-description">Información verificada de la Junta de CyL</div>
+                    <div class="stat-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <rect x="7" y="8" width="3" height="8"></rect>
+                            <rect x="14" y="8" width="3" height="8"></rect>
+                        </svg>
+                    </div>
+                    <div class="stat-label">400+ Datasets</div>
+                    <div class="stat-description">Información oficial verificada y actualizada</div>
                 </div>
                 <div class="stat-card fade-in-up" data-delay="200">
-                    <div class="stat-icon">🔄</div>
-                    <div class="stat-label">Actualizaciones</div>
-                    <div class="stat-description">Sincronización automática diaria</div>
+                    <div class="stat-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                    </div>
+                    <div class="stat-label">Alertas Personalizadas</div>
+                    <div class="stat-description">Te avisamos cuando hay nuevos datos</div>
                 </div>
                 <div class="stat-card fade-in-up" data-delay="300">
-                    <div class="stat-icon">🏷️</div>
-                    <div class="stat-label">Categorías</div>
-                    <div class="stat-description">Salud, educación, turismo y más</div>
+                    <div class="stat-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                        </svg>
+                    </div>
+                    <div class="stat-label">15+ Categorías</div>
+                    <div class="stat-description">Desde contratos públicos hasta COVID</div>
                 </div>
                 <div class="stat-card fade-in-up" data-delay="400">
-                    <div class="stat-icon">⚡</div>
-                    <div class="stat-label">Acceso Rápido</div>
-                    <div class="stat-description">Búsqueda instantánea en Telegram</div>
+                    <div class="stat-icon">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7,10 12,15 17,10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    </div>
+                    <div class="stat-label">Exportación Fácil</div>
+                    <div class="stat-description">Catálogo completo en Excel al instante</div>
                 </div>
             </div>
         </div>
@@ -244,14 +345,14 @@
     <section class="cta">
         <div class="container">
             <div class="cta-content fade-in-up">
-                <h2 class="cta-title">¿Listo para explorar los datos?</h2>
+                <h2 class="cta-title">¿Listo para Empezar?</h2>
                 <p class="cta-subtitle">
-                    Descubre una nueva forma de acceder a información pública 
-                    de manera inteligente, rápida y completamente gratuita.
+                    Accede fácilmente a todos los datos públicos de Castilla y León 
+                    directamente desde Telegram. Información oficial al alcance de todos.
                 </p>
                 <a href="https://t.me/cyl_asistente_bot" class="btn-primary large" target="_blank" rel="noopener">
                     <span class="btn-icon">🚀</span>
-                    Comenzar Ahora
+                    Comenzar
                 </a>
             </div>
         </div>
@@ -267,8 +368,8 @@
                         <span class="logo-text">Datos Abiertos CyL Bot</span>
                     </div>
                     <p class="footer-description">
-                        Tu asistente inteligente para datos abiertos de Castilla y León. 
-                        Desarrollado con ❤️ para la comunidad.
+                        Tu asistente para acceder cómodamente a datos abiertos de Castilla y León. 
+                        Herramientas útiles para ciudadanos.
                     </p>
                 </div>
                 
@@ -284,10 +385,10 @@
                 <div class="footer-section">
                     <h3 class="footer-title">Comandos Principales</h3>
                     <ul class="footer-links">
-                        <li><code>/start</code> - Menú principal</li>
-                        <li><code>/buscar</code> - Buscar datasets</li>
-                        <li><code>/estadisticas</code> - Ver estadísticas</li>
-                        <li><code>/help</code> - Ayuda completa</li>
+                        <li><code>/catalogo</code> - Descargar catálogo Excel</li>
+                        <li><code>/mis_alertas</code> - Gestionar alertas</li>
+                        <li><code>/resumen_diario</code> - Resumen de novedades</li>
+                        <li><code>/favoritos</code> - Datasets guardados</li>
                     </ul>
                 </div>
             </div>
